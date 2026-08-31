@@ -14,7 +14,7 @@ class RequisitionItem extends Model
 
     public function requisition(): BelongsTo
     {
-        return $this->belongsTo(Requisition::class, 'requisition_id');
+        return $this->belongsTo(Requisition::class);
     }
 
     protected function casts(): array
