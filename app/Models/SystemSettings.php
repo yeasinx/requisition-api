@@ -27,7 +27,7 @@ class SystemSettings extends Model
    }
    public function hrAdminApprover(): BelongsTo
    {
-       return $this->belongsTo(User::class, 'hr_admin_user_id');
+       return $this->belongsTo(User::class, 'hr_admin_approver_user_id');
    }
    public function updatedBy(): BelongsTo
    {
