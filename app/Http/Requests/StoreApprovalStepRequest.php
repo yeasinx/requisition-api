@@ -12,18 +12,26 @@ class StoreApprovalStepRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            //
+            'remarks' => ['nullable', 'string', 'max:1000'],
+        ];
+    }
+
+    /**
+     * Custom error messages for validator errors.
+     */
+    public function messages(): array
+    {
+        return [
+            'remarks.max' => 'Remarks cannot exceed 1000 characters.',
         ];
     }
 }
