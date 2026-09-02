@@ -2,65 +2,44 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreSystemSettingsRequest;
 use App\Http\Requests\UpdateSystemSettingsRequest;
+use App\Http\Resources\SystemSettingsResource;
 use App\Models\SystemSettings;
+use App\Services\SettingsService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
 
 class SystemSettingsController extends Controller
 {
+    public function __construct(protected SettingsService $settingsService) {}
+
     /**
-     * Display a listing of the resource.
+     * Display current system settings and assigned approvers.
      */
-    public function index()
+    public function show(): JsonResponse
     {
-        //
+        Gate::authorize('view', SystemSettings::class);
+
+        $settings = $this->settingsService->getSettings()
+            ->load(['firstApprover', 'secondApprover', 'businessController', 'accountsApprover', 'hrAdminApprover', 'updatedBy']);
+
+        return (new SystemSettingsResource($settings))->response();
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Update designated approvers.
      */
-    public function create()
+    public function update(UpdateSystemSettingsRequest $request): JsonResponse
     {
-        //
-    }
+        Gate::authorize('update', SystemSettings::class);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreSystemSettingsRequest $request)
-    {
-        //
-    }
+        $settings = $this->settingsService->updateSettings(
+            $request->validated(),
+            $request->user()->id
+        );
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(SystemSettings $systemSettings)
-    {
-        //
-    }
+        $settings->load(['firstApprover', 'secondApprover', 'businessController', 'accountsApprover', 'hrAdminApprover', 'updatedBy']);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(SystemSettings $systemSettings)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateSystemSettingsRequest $request, SystemSettings $systemSettings)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(SystemSettings $systemSettings)
-    {
-        //
+        return (new SystemSettingsResource($settings))->response();
     }
 }

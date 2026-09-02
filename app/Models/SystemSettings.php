@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['first_approver_user_id', 'second_approver_user_id', 'business_controller_user_id', 'accounts_approver_user_id', 'hr_admin_user_id', 'updated_by_user_id'])]
+#[Fillable(['first_approver_user_id', 'second_approver_user_id', 'business_controller_user_id', 'accounts_approver_user_id', 'hr_admin_approver_user_id', 'updated_by_user_id'])]
 class SystemSettings extends Model
 {
    public function firstApprover(): BelongsTo
