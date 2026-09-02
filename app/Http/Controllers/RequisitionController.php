@@ -9,9 +9,8 @@ use App\Http\Requests\StoreRequisitionRequest;
 use App\Http\Requests\UpdateRequisitionRequest;
 use App\Http\Resources\RequisitionResource;
 use App\Models\Requisition;
-use App\Services\RequisitionNumberService;
+use App\Services\RequisitionService;
 use App\Services\SettingsService;
-use App\Services\WorkflowService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Gate;
@@ -19,8 +18,7 @@ use Illuminate\Support\Facades\Gate;
 class RequisitionController extends Controller
 {
     public function __construct(
-        protected WorkflowService $workflowService,
-        protected RequisitionNumberService $requisitionNumberService,
+        protected RequisitionService $requisitionService,
         protected SettingsService $settingsService
     )
     {}
@@ -75,7 +73,7 @@ class RequisitionController extends Controller
             });
         }
 
-        // Optional status filtering
+        // Status filtering
         if ($request->filled('status')) {
             $query->where('status', $request->query('status'));
         }
@@ -86,50 +84,60 @@ class RequisitionController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreRequisitionRequest $request)
+    public function store(StoreRequisitionRequest $request): JsonResponse
     {
-        //
+        Gate::authorize('create', Requisition::class);
+
+        $requisition = $this->requisitionService->create(
+            $request->user(),
+            $request->validated()
+        );
+
+        return new RequisitionResource($requisition)
+            ->response()
+            ->setStatusCode(201);
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified requisition.
      */
-    public function show(Requisition $requisition)
+    public function show(Requisition $requisition): JsonResponse
     {
-        //
-    }
+        Gate::authorize('view', $requisition);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Requisition $requisition)
-    {
-        //
+        $requisition->load(['submittedBy', 'items', 'approvals.actedBy']);
+
+        return new RequisitionResource($requisition)->response();
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateRequisitionRequest $request, Requisition $requisition)
+    public function update(UpdateRequisitionRequest $request, Requisition $requisition): JsonResponse
     {
-        //
+        Gate::authorize('update', $requisition);
+
+        $requisition = $this->requisitionService->update(
+            $requisition,
+            $request->validated()
+        );
+
+        return new RequisitionResource($requisition)->response();
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Requisition $requisition)
+    public function destroy(Requisition $requisition): JsonResponse
     {
-        //
+        Gate::authorize('delete', $requisition);
+
+        $requisition->delete();
+
+        return response()->json([
+            'message' => 'Requisition deleted successfully',
+        ]);
     }
 }
