@@ -10,7 +10,7 @@ A robust, enterprise-grade RESTful API for organizational requisition and purcha
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
 - **Dynamic 5-Tier Approval Workflow**: Automatic progression through `APPROVER_1` (PM) ➔ `APPROVER_2` (CEO) ➔ `BUSINESS_CONTROLLER` ➔ `ACCOUNTS` ➔ `HR_ADMIN`.
 - **Role-Aware Starting Steps**: Smart workflow initialization that dynamically selects the starting stage based on the submitter's organizational role (e.g. CEO submissions jump straight to Business Controller).
@@ -22,7 +22,7 @@ A robust, enterprise-grade RESTful API for organizational requisition and purcha
 
 ---
 
-## 🏗️ Workflow & Architecture Overview
+## Workflow & Architecture Overview
 
 ```mermaid
 flowchart TD
@@ -48,9 +48,9 @@ flowchart TD
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
-- **Backend Framework**: [Laravel](https://laravel.com) (PHP 8.3+)
+- **Backend Framework**: [Laravel](https://laravel.com) (PHP 8.4+)
 - **Authentication**: [Laravel Sanctum](https://laravel.com/docs/sanctum) (Bearer Token)
 - **Database**: SQLite (Development/Testing) / MySQL / PostgreSQL (Production)
 - **Code Standards**: [Laravel Pint](https://laravel.com/docs/pint) (PSR-12 / Laravel standard)
@@ -58,10 +58,10 @@ flowchart TD
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Prerequisites
-- **PHP** `>= 8.3`
+- **PHP** `>= 8.4`
 - **Composer** `>= 2.5`
 
 ### 2. Installation & Setup
@@ -89,7 +89,7 @@ The API will be available at `http://127.0.0.1:8000`.
 
 ---
 
-## 🔑 Default Seeded Credentials
+## Default Seeded Credentials
 
 Running `php artisan db:seed` provisions the initial administrator:
 
@@ -103,7 +103,7 @@ Running `php artisan db:seed` provisions the initial administrator:
 
 ---
 
-## 📡 API Endpoint Reference
+## API Endpoint Reference
 
 ### Authentication
 | Method | Endpoint | Access | Description |
@@ -140,21 +140,21 @@ Running `php artisan db:seed` provisions the initial administrator:
 
 ---
 
-## 📚 Project Wiki & Documentation
+## Project Wiki & Documentation
 
 Detailed technical documentation and developer guides are available in the [`docs/wiki`](docs/wiki/Home.md) directory:
 
-- 🏛️ [01 — Architecture & System Design](docs/wiki/01-Architecture-and-Design.md)
-- 🗄️ [02 — Domain Model & Database Architecture](docs/wiki/02-Domain-Model-and-Database.md)
-- 🔒 [03 — Authentication & Authorization Policies](docs/wiki/03-Authentication-and-Authorization.md)
-- ⚡ [04 — Requisition & Approval Workflow Engine](docs/wiki/04-Requisition-and-Approval-Workflow.md)
-- 📑 [05 — API Reference & JSON Payloads](docs/wiki/05-API-Reference-and-Examples.md)
-- 🧪 [06 — Development, Testing & Operations](docs/wiki/06-Development-Testing-and-Operations.md)
-- 📄 [Consolidated System Flow](docs/SYSTEM_FLOW.md)
+-  [01 — Architecture & System Design](docs/wiki/01-Architecture-and-Design.md)
+-  [02 — Domain Model & Database Architecture](docs/wiki/02-Domain-Model-and-Database.md)
+-  [03 — Authentication & Authorization Policies](docs/wiki/03-Authentication-and-Authorization.md)
+-  [04 — Requisition & Approval Workflow Engine](docs/wiki/04-Requisition-and-Approval-Workflow.md)
+-  [05 — API Reference & JSON Payloads](docs/wiki/05-API-Reference-and-Examples.md)
+-  [06 — Development, Testing & Operations](docs/wiki/06-Development-Testing-and-Operations.md)
+-  [Consolidated System Flow](docs/SYSTEM_FLOW.md)
 
 ---
 
-## 🧪 Running Tests & Quality Checks
+## Running Tests & Quality Checks
 
 ```bash
 # Run PHPUnit test suite
@@ -169,6 +169,6 @@ php artisan test
 
 ---
 
-## 📄 License
+## License
 
 This software is open-sourced under the [MIT License](LICENSE).
