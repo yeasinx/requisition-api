@@ -17,25 +17,25 @@ class RequisitionResource extends JsonResource
         $submitter = $this->submittedBy ?? $this->submitter;
 
         return [
-            'id'                   => $this->id,
-            'requisition_number'   => $this->requisition_number,
-            'submitted_by'         => $submitter ? [
-                'id'          => $submitter->id,
-                'name'        => $submitter->name,
-                'email'       => $submitter->email,
+            'id' => $this->id,
+            'requisition_number' => $this->requisition_number,
+            'submitted_by' => $submitter ? [
+                'id' => $submitter->id,
+                'name' => $submitter->name,
+                'email' => $submitter->email,
                 'employee_id' => $submitter->employee_id,
                 'designation' => $submitter->designation,
             ] : null,
-            'current_step'         => $this->current_step?->value,
-            'status'               => $this->status->value,
+            'current_step' => $this->current_step?->value,
+            'status' => $this->status->value,
             'total_expected_price' => (float) $this->total_expected_price,
 
             // Conditional loading to prevent N+1 query issues
-            'items'                => RequisitionItemResource::collection($this->whenLoaded('items')),
-            'approvals'            => ApprovalStepResource::collection($this->whenLoaded('approvals')),
+            'items' => RequisitionItemResource::collection($this->whenLoaded('items')),
+            'approvals' => ApprovalStepResource::collection($this->whenLoaded('approvals')),
 
-            'created_at'           => $this->created_at?->toIso8601String(),
-            'updated_at'           => $this->updated_at?->toIso8601String(),
+            'created_at' => $this->created_at?->toIso8601String(),
+            'updated_at' => $this->updated_at?->toIso8601String(),
         ];
     }
 }

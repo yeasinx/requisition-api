@@ -8,12 +8,11 @@ use App\Enums\UserType;
 use App\Models\Requisition;
 use App\Models\User;
 use App\Services\SettingsService;
-use Illuminate\Auth\Access\Response;
 
 class RequisitionPolicy
 {
-    public function __construct(protected SettingsService $settingsService)
-    {}
+    public function __construct(protected SettingsService $settingsService) {}
+
     /**
      * Determine whether the user can view any models.
      */
@@ -37,7 +36,7 @@ class RequisitionPolicy
 
         $settings = $this->settingsService->getSettings();
 
-        return match($requisition->current_step) {
+        return match ($requisition->current_step) {
             RequisitionStep::APPROVER_1 => $user->id === $settings->first_approver_user_id,
             RequisitionStep::APPROVER_2 => $user->id === $settings->second_approver_user_id,
             RequisitionStep::BUSINESS_CONTROLLER => $user->id === $settings->business_controller_user_id,
@@ -95,7 +94,7 @@ class RequisitionPolicy
         $settings = $this->settingsService->getSettings();
 
         // Check if user is the designated approver for the current step
-        return match($requisition->current_step) {
+        return match ($requisition->current_step) {
             RequisitionStep::APPROVER_1 => $user->id === $settings->first_approver_user_id,
             RequisitionStep::APPROVER_2 => $user->id === $settings->second_approver_user_id,
             RequisitionStep::BUSINESS_CONTROLLER => $user->id === $settings->business_controller_user_id,

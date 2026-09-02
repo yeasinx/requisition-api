@@ -11,8 +11,8 @@ use App\Http\Resources\RequisitionResource;
 use App\Models\Requisition;
 use App\Services\RequisitionService;
 use App\Services\SettingsService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 class RequisitionController extends Controller
@@ -20,8 +20,7 @@ class RequisitionController extends Controller
     public function __construct(
         protected RequisitionService $requisitionService,
         protected SettingsService $settingsService
-    )
-    {}
+    ) {}
 
     /**
      * List requisitions (filtered based on a user role).
@@ -59,7 +58,7 @@ class RequisitionController extends Controller
                 $q->where('submitted_by_user_id', $user->id);
 
                 // 2. See requisitions waiting for current user's approval
-                if (!empty($assignedSteps)) {
+                if (! empty($assignedSteps)) {
                     $q->orWhere(function ($subQuery) use ($assignedSteps) {
                         $subQuery->where('status', RequisitionStatus::PENDING)
                             ->whereIn('current_step', $assignedSteps);

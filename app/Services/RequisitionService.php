@@ -17,13 +17,14 @@ class RequisitionService
     /**
      * Prepare line items with calculated total prices and sum overall total.
      *
-     * @param array<int, array{item_name: string, description: string, quantity: int, unit_price: float|int}> $rawItems
+     * @param  array<int, array{item_name: string, description: string, quantity: int, unit_price: float|int}>  $rawItems
      * @return array{0: array<int, array>, 1: float}
      */
     public function processItems(array $rawItems): array
     {
         $items = array_map(function (array $item) {
             $item['total_price'] = round($item['quantity'] * $item['unit_price'], 2);
+
             return $item;
         }, $rawItems);
 
@@ -42,10 +43,10 @@ class RequisitionService
 
         return DB::transaction(function () use ($user, $items, $totalPrice, $initialStep) {
             $requisition = Requisition::create([
-                'requisition_number'   => $this->requisitionNumberService->generate(),
+                'requisition_number' => $this->requisitionNumberService->generate(),
                 'submitted_by_user_id' => $user->id,
-                'current_step'         => $initialStep,
-                'status'               => RequisitionStatus::PENDING,
+                'current_step' => $initialStep,
+                'status' => RequisitionStatus::PENDING,
                 'total_expected_price' => $totalPrice,
             ]);
 

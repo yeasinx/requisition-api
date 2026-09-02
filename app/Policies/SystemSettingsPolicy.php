@@ -3,7 +3,6 @@
 namespace App\Policies;
 
 use App\Enums\UserType;
-use App\Models\SystemSettings;
 use App\Models\User;
 
 class SystemSettingsPolicy

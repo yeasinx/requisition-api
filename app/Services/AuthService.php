@@ -12,7 +12,7 @@ class AuthService
 
     public function __construct(?User $userModel = null)
     {
-        $this->userModel = $userModel ?? new User();
+        $this->userModel = $userModel ?? new User;
     }
 
     /**
@@ -35,7 +35,7 @@ class AuthService
         $token = $user->createToken($tokenName)->plainTextToken;
 
         return [
-            'user'  => $user,
+            'user' => $user,
             'token' => $token,
         ];
     }

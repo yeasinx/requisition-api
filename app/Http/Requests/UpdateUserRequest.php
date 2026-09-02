@@ -20,12 +20,12 @@ class UpdateUserRequest extends FormRequest
         $userId = $this->route('user')?->id ?? $this->route('user');
 
         return [
-            'name'        => ['sometimes', 'required', 'string', 'max:255'],
-            'email'       => ['sometimes', 'required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
-            'password'    => ['sometimes', 'nullable', 'string', Password::defaults()],
+            'name' => ['sometimes', 'required', 'string', 'max:255'],
+            'email' => ['sometimes', 'required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
+            'password' => ['sometimes', 'nullable', 'string', Password::defaults()],
             'employee_id' => ['sometimes', 'required', 'string', 'max:50', Rule::unique('users', 'employee_id')->ignore($userId)],
             'designation' => ['sometimes', 'required', 'string', 'max:255'],
-            'role'        => ['sometimes', 'required', new Enum(UserType::class)],
+            'role' => ['sometimes', 'required', new Enum(UserType::class)],
         ];
     }
 }
