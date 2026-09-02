@@ -4,7 +4,7 @@ Welcome to the **Requisition Management System API** developer wiki. This docume
 
 ---
 
-## 📚 Wiki Contents
+## Wiki Contents
 
 | # | Topic | Description |
 | :--- | :--- | :--- |
@@ -17,7 +17,7 @@ Welcome to the **Requisition Management System API** developer wiki. This docume
 
 ---
 
-## 🎯 Quick Navigation
+## Quick Navigation
 
 - **Need to set up locally?** Check out [Development, Testing & Operations](06-Development-Testing-and-Operations.md).
 - **Want to understand the approval engine?** Read [Requisition & Approval Workflow](04-Requisition-and-Approval-Workflow.md).
