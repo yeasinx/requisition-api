@@ -14,16 +14,18 @@ class RequisitionResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $submitter = $this->submittedBy ?? $this->submitter;
+
         return [
             'id'                   => $this->id,
             'requisition_number'   => $this->requisition_number,
-            'submitted_by'         => [
-                'id'          => $this->submitter->id,
-                'name'        => $this->submitter->name,
-                'email'       => $this->submitter->email,
-                'employee_id' => $this->submitter->employee_id,
-                'designation' => $this->submitter->designation,
-            ],
+            'submitted_by'         => $submitter ? [
+                'id'          => $submitter->id,
+                'name'        => $submitter->name,
+                'email'       => $submitter->email,
+                'employee_id' => $submitter->employee_id,
+                'designation' => $submitter->designation,
+            ] : null,
             'current_step'         => $this->current_step?->value,
             'status'               => $this->status->value,
             'total_expected_price' => (float) $this->total_expected_price,
