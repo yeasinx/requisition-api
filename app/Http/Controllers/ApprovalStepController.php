@@ -3,64 +3,49 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreApprovalStepRequest;
-use App\Http\Requests\UpdateApprovalStepRequest;
-use App\Models\ApprovalStep;
+use App\Http\Resources\RequisitionResource;
+use App\Models\Requisition;
+use App\Services\WorkflowService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
 
 class ApprovalStepController extends Controller
 {
+    public function __construct(protected WorkflowService $workflowService) {}
+
     /**
-     * Display a listing of the resource.
+     * Approve a requisition at its current step.
      */
-    public function index()
+    public function approve(StoreApprovalStepRequest $request, Requisition $requisition): JsonResponse
     {
-        //
+        Gate::authorize('approve', $requisition);
+
+        $validated = $request->validated();
+
+        $requisition = $this->workflowService->approve(
+            $requisition,
+            $request->user(),
+            $validated['remarks'] ?? null
+        );
+
+        return new RequisitionResource($requisition)->response();
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Deny a requisition at its current step.
      */
-    public function create()
+    public function deny(StoreApprovalStepRequest $request, Requisition $requisition): JsonResponse
     {
-        //
-    }
+        Gate::authorize('deny', $requisition);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreApprovalStepRequest $request)
-    {
-        //
-    }
+        $validated = $request->validated();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(ApprovalStep $approvalStep)
-    {
-        //
-    }
+        $requisition = $this->workflowService->deny(
+            $requisition,
+            $request->user(),
+            $validated['remarks'] ?? null
+        );
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(ApprovalStep $approvalStep)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateApprovalStepRequest $request, ApprovalStep $approvalStep)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(ApprovalStep $approvalStep)
-    {
-        //
+        return new RequisitionResource($requisition)->response();
     }
 }
