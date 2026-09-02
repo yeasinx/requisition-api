@@ -21,11 +21,11 @@ class DatabaseSeeder extends Seeder
         User::firstOrCreate(
             ['email' => 'admin@company.com'],
             [
-                'name'        => 'System Admin',
-                'password'    => Hash::make('password123'),
+                'name' => 'System Admin',
+                'password' => Hash::make('password123'),
                 'employee_id' => 'EMP-0001',
                 'designation' => 'Super Administrator',
-                'role'        => UserType::SUPER_ADMIN,
+                'role' => UserType::SUPER_ADMIN,
             ]
         );
     }

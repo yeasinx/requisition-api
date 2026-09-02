@@ -16,7 +16,9 @@ use Tests\TestCase;
 class AuthServiceTest extends TestCase
 {
     protected User|MockInterface $userModel;
+
     protected Builder|MockInterface $queryBuilder;
+
     protected AuthService $authService;
 
     protected function setUp(): void
@@ -57,7 +59,7 @@ class AuthServiceTest extends TestCase
 
     public function test_attempt_login_throws_validation_exception_when_password_incorrect(): void
     {
-        $user = new User();
+        $user = new User;
         $user->email = 'user@example.com';
         $user->setRawAttributes(['password' => '$2y$12$hashed_password_sample']);
 
@@ -83,11 +85,12 @@ class AuthServiceTest extends TestCase
     public function test_attempt_login_returns_user_and_token_on_valid_credentials(): void
     {
         $newAccessToken = new NewAccessToken(
-            new PersonalAccessToken(),
+            new PersonalAccessToken,
             '1|sample_plain_text_token'
         );
 
-        $user = new class extends User {
+        $user = new class extends User
+        {
             public ?NewAccessToken $tokenInstance = null;
 
             public function createToken(string $name, array $abilities = ['*'], ?\DateTimeInterface $expiresAt = null): NewAccessToken
@@ -125,7 +128,8 @@ class AuthServiceTest extends TestCase
         $token = Mockery::mock(PersonalAccessToken::class);
         $token->shouldReceive('delete')->once()->andReturnTrue();
 
-        $user = new class extends User {
+        $user = new class extends User
+        {
             public $mockToken = null;
 
             public function currentAccessToken()
