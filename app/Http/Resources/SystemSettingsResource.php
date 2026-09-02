@@ -15,22 +15,22 @@ class SystemSettingsResource extends JsonResource
     public function toArray(Request $request): array
     {
         $formatUser = fn ($user) => $user ? [
-            'id'          => $user->id,
-            'name'        => $user->name,
-            'email'       => $user->email,
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
             'employee_id' => $user->employee_id,
             'designation' => $user->designation,
         ] : null;
 
         return [
-            'id'                   => $this->id,
-            'first_approver'       => $formatUser($this->firstApprover),
-            'second_approver'      => $formatUser($this->secondApprover),
-            'business_controller'  => $formatUser($this->businessController),
-            'accounts_approver'    => $formatUser($this->accountsApprover),
-            'hr_admin_approver'    => $formatUser($this->hrAdminApprover),
-            'updated_by'           => $formatUser($this->updatedBy),
-            'updated_at'           => $this->updated_at?->toIso8601String(),
+            'id' => $this->id,
+            'first_approver' => $formatUser($this->firstApprover),
+            'second_approver' => $formatUser($this->secondApprover),
+            'business_controller' => $formatUser($this->businessController),
+            'accounts_approver' => $formatUser($this->accountsApprover),
+            'hr_admin_approver' => $formatUser($this->hrAdminApprover),
+            'updated_by' => $formatUser($this->updatedBy),
+            'updated_at' => $this->updated_at?->toIso8601String(),
         ];
     }
 }

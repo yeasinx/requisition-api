@@ -13,8 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class WorkflowService
 {
-    public function __construct(protected SettingsService $settingsService)
-    {}
+    public function __construct(protected SettingsService $settingsService) {}
 
     public function getInitialStep(User $submitter): RequisitionStep
     {
@@ -64,19 +63,19 @@ class WorkflowService
     {
         return DB::transaction(function () use ($requisition, $user, $remarks) {
             ApprovalStep::create([
-                'requisition_id'   => $requisition->id,
-                'step_type'        => $requisition->current_step,
+                'requisition_id' => $requisition->id,
+                'step_type' => $requisition->current_step,
                 'acted_by_user_id' => $user->id,
-                'decision'         => DecisionStatus::APPROVED,
-                'remarks'          => $remarks,
-                'acted_at'         => now(),
+                'decision' => DecisionStatus::APPROVED,
+                'remarks' => $remarks,
+                'acted_at' => now(),
             ]);
 
             $nextStep = $this->getNextStep($requisition->current_step);
 
             if ($nextStep === null) {
                 $requisition->update([
-                    'status'       => RequisitionStatus::APPROVED,
+                    'status' => RequisitionStatus::APPROVED,
                     'current_step' => null,
                 ]);
             } else {
@@ -96,16 +95,16 @@ class WorkflowService
     {
         return DB::transaction(function () use ($requisition, $user, $remarks) {
             ApprovalStep::create([
-                'requisition_id'   => $requisition->id,
-                'step_type'        => $requisition->current_step,
+                'requisition_id' => $requisition->id,
+                'step_type' => $requisition->current_step,
                 'acted_by_user_id' => $user->id,
-                'decision'         => DecisionStatus::DENIED,
-                'remarks'          => $remarks,
-                'acted_at'         => now(),
+                'decision' => DecisionStatus::DENIED,
+                'remarks' => $remarks,
+                'acted_at' => now(),
             ]);
 
             $requisition->update([
-                'status'       => RequisitionStatus::DENIED,
+                'status' => RequisitionStatus::DENIED,
                 'current_step' => null,
             ]);
 

@@ -12,7 +12,9 @@ use PHPUnit\Framework\TestCase;
 class RequisitionServiceTest extends TestCase
 {
     protected WorkflowService|MockInterface $workflowService;
+
     protected RequisitionNumberService|MockInterface $requisitionNumberService;
+
     protected RequisitionService $requisitionService;
 
     protected function setUp(): void

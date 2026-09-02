@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Enums\DecisionStatus;
 use App\Enums\RequisitionStep;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -16,17 +15,18 @@ class ApprovalStep extends Model
     {
         return $this->belongsTo(Requisition::class);
     }
-   public function actedBy(): BelongsTo
-   {
-       return $this->belongsTo(User::class, 'acted_by_user_id');
-   }
 
-   public function casts(): array
-   {
-       return [
-           'step_type' => RequisitionStep::class,
-           'decision' => DecisionStatus::class,
-           'acted_at' => 'datetime',
-       ];
-   }
+    public function actedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'acted_by_user_id');
+    }
+
+    public function casts(): array
+    {
+        return [
+            'step_type' => RequisitionStep::class,
+            'decision' => DecisionStatus::class,
+            'acted_at' => 'datetime',
+        ];
+    }
 }

@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreRequisitionRequest extends FormRequest
 {
@@ -23,7 +21,7 @@ class StoreRequisitionRequest extends FormRequest
             'items.*.item_name' => ['required', 'string', 'max:1000'],
             'items.*.description' => ['required', 'string', 'max:255'],
             'items.*.quantity' => ['required', 'integer', 'min:1', 'max:99999'],
-            'items.*.unit_price' => ['required', 'numeric', 'min:0.01', 'max:999999999.99']
+            'items.*.unit_price' => ['required', 'numeric', 'min:0.01', 'max:999999999.99'],
         ];
     }
 
@@ -40,5 +38,4 @@ class StoreRequisitionRequest extends FormRequest
             'items.*.unit_price.min' => 'Unit price must be 0 or greater.',
         ];
     }
-
 }

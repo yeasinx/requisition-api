@@ -15,15 +15,15 @@ class RequisitionItemResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'             => $this->id,
+            'id' => $this->id,
             'requisition_id' => $this->requisition_id,
-            'item_name'      => $this->item_name,
-            'description'    => $this->description,
-            'quantity'       => $this->quantity,
-            'unit_price'     => (float) $this->unit_price,
-            'total_price'    => (float) $this->total_price,
-            'created_at'     => $this->created_at?->toIso8601String(),
-            'updated_at'     => $this->updated_at?->toIso8601String(),
+            'item_name' => $this->item_name,
+            'description' => $this->description,
+            'quantity' => $this->quantity,
+            'unit_price' => (float) $this->unit_price,
+            'total_price' => (float) $this->total_price,
+            'created_at' => $this->created_at?->toIso8601String(),
+            'updated_at' => $this->updated_at?->toIso8601String(),
         ];
     }
 }

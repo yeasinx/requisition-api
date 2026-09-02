@@ -19,6 +19,7 @@ use Tests\TestCase;
 class WorkflowServiceTest extends TestCase
 {
     protected SettingsService|MockInterface $settingsService;
+
     protected WorkflowService $workflowService;
 
     protected function setUp(): void
@@ -77,7 +78,7 @@ class WorkflowServiceTest extends TestCase
 
     public function test_ceo_submitter_starts_at_business_controller(): void
     {
-        $ceo = new User();
+        $ceo = new User;
         $ceo->id = 1;
 
         $this->settingsService
@@ -100,7 +101,7 @@ class WorkflowServiceTest extends TestCase
 
     public function test_pm_submitter_starts_at_approver_2(): void
     {
-        $pm = new User();
+        $pm = new User;
         $pm->id = 2;
 
         $this->settingsService
@@ -123,10 +124,10 @@ class WorkflowServiceTest extends TestCase
 
     public function test_regular_employee_starts_at_approver_1(): void
     {
-        $ceo = new User();
+        $ceo = new User;
         $ceo->id = 1;
 
-        $pm = new User();
+        $pm = new User;
         $pm->id = 2;
 
         $this->settingsService
@@ -178,9 +179,9 @@ class WorkflowServiceTest extends TestCase
     {
         DB::shouldReceive('transaction')
             ->once()
-            ->andReturnUsing(fn($callback) => $callback());
+            ->andReturnUsing(fn ($callback) => $callback());
 
-        $approver = new User();
+        $approver = new User;
         $approver->id = 5;
 
         $requisition = Mockery::mock(Requisition::class)->makePartial();
@@ -188,7 +189,7 @@ class WorkflowServiceTest extends TestCase
         $requisition->current_step = RequisitionStep::APPROVER_1;
         $requisition->status = RequisitionStatus::PENDING;
 
-        $approvalMock = Mockery::mock('alias:' . ApprovalStep::class);
+        $approvalMock = Mockery::mock('alias:'.ApprovalStep::class);
         $approvalMock->shouldReceive('create')
             ->once()
             ->with(Mockery::on(function ($data) use ($requisition, $approver) {
@@ -198,7 +199,7 @@ class WorkflowServiceTest extends TestCase
                     && $data['decision'] === DecisionStatus::APPROVED
                     && $data['remarks'] === 'Looks good';
             }))
-            ->andReturn(new ApprovalStep());
+            ->andReturn(new ApprovalStep);
 
         $requisition->shouldReceive('update')
             ->once()
@@ -219,9 +220,9 @@ class WorkflowServiceTest extends TestCase
     {
         DB::shouldReceive('transaction')
             ->once()
-            ->andReturnUsing(fn($callback) => $callback());
+            ->andReturnUsing(fn ($callback) => $callback());
 
-        $approver = new User();
+        $approver = new User;
         $approver->id = 6;
 
         $requisition = Mockery::mock(Requisition::class)->makePartial();
@@ -229,7 +230,7 @@ class WorkflowServiceTest extends TestCase
         $requisition->current_step = RequisitionStep::HR_ADMIN;
         $requisition->status = RequisitionStatus::PENDING;
 
-        $approvalMock = Mockery::mock('alias:' . ApprovalStep::class);
+        $approvalMock = Mockery::mock('alias:'.ApprovalStep::class);
         $approvalMock->shouldReceive('create')
             ->once()
             ->with(Mockery::on(function ($data) use ($requisition, $approver) {
@@ -239,12 +240,12 @@ class WorkflowServiceTest extends TestCase
                     && $data['decision'] === DecisionStatus::APPROVED
                     && $data['remarks'] === null;
             }))
-            ->andReturn(new ApprovalStep());
+            ->andReturn(new ApprovalStep);
 
         $requisition->shouldReceive('update')
             ->once()
             ->with([
-                'status'       => RequisitionStatus::APPROVED,
+                'status' => RequisitionStatus::APPROVED,
                 'current_step' => null,
             ])
             ->andReturn(true);
@@ -263,9 +264,9 @@ class WorkflowServiceTest extends TestCase
     {
         DB::shouldReceive('transaction')
             ->once()
-            ->andReturnUsing(fn($callback) => $callback());
+            ->andReturnUsing(fn ($callback) => $callback());
 
-        $approver = new User();
+        $approver = new User;
         $approver->id = 7;
 
         $requisition = Mockery::mock(Requisition::class)->makePartial();
@@ -273,7 +274,7 @@ class WorkflowServiceTest extends TestCase
         $requisition->current_step = RequisitionStep::BUSINESS_CONTROLLER;
         $requisition->status = RequisitionStatus::PENDING;
 
-        $approvalMock = Mockery::mock('alias:' . ApprovalStep::class);
+        $approvalMock = Mockery::mock('alias:'.ApprovalStep::class);
         $approvalMock->shouldReceive('create')
             ->once()
             ->with(Mockery::on(function ($data) use ($requisition, $approver) {
@@ -283,12 +284,12 @@ class WorkflowServiceTest extends TestCase
                     && $data['decision'] === DecisionStatus::DENIED
                     && $data['remarks'] === 'Budget exceeded';
             }))
-            ->andReturn(new ApprovalStep());
+            ->andReturn(new ApprovalStep);
 
         $requisition->shouldReceive('update')
             ->once()
             ->with([
-                'status'       => RequisitionStatus::DENIED,
+                'status' => RequisitionStatus::DENIED,
                 'current_step' => null,
             ])
             ->andReturn(true);
