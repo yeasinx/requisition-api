@@ -12,10 +12,15 @@ use App\Models\User;
 use App\Services\SettingsService;
 use App\Services\WorkflowService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Mockery;
 use Mockery\MockInterface;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Tests\TestCase;
 
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState(false)]
 class WorkflowServiceTest extends TestCase
 {
     protected SettingsService|MockInterface $settingsService;
@@ -25,6 +30,8 @@ class WorkflowServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        Mail::fake();
 
         $this->settingsService = Mockery::mock(SettingsService::class);
         $this->workflowService = new WorkflowService($this->settingsService);
@@ -210,6 +217,11 @@ class WorkflowServiceTest extends TestCase
             ->once()
             ->with(['submittedBy', 'items', 'approvals.actedBy'])
             ->andReturnSelf();
+
+        $this->settingsService
+            ->shouldReceive('getApproverForStep')
+            ->with(RequisitionStep::APPROVER_2)
+            ->andReturn(null);
 
         $result = $this->workflowService->approve($requisition, $approver, 'Looks good');
 

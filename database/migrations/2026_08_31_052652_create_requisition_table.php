@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('requisition_number')->unique();
             $table->foreignId('submitted_by_user_id')->constrained('users')->onDelete('cascade');
-            $table->string('current_step')->default('APPROVER_1'); // Maps to RequisitionStep enum
+            $table->string('current_step')->nullable()->default('APPROVER_1'); // Maps to RequisitionStep enum
             $table->string('status')->default('PENDING'); // Maps to RequisitionStatus enum
             $table->decimal('total_expected_price', 15, 2)->default(0);
             $table->timestamps();

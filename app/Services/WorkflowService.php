@@ -6,10 +6,15 @@ use App\Enums\DecisionStatus;
 use App\Enums\RequisitionStatus;
 use App\Enums\RequisitionStep;
 use App\Enums\UserType;
+use App\Mail\RequisitionApprovedMail;
+use App\Mail\RequisitionDeniedMail;
+use App\Mail\RequisitionPendingApprovalMail;
 use App\Models\ApprovalStep;
 use App\Models\Requisition;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use InvalidArgumentException;
 
 class WorkflowService
 {
@@ -61,7 +66,10 @@ class WorkflowService
      */
     public function approve(Requisition $requisition, User $user, ?string $remarks = null): Requisition
     {
-        return DB::transaction(function () use ($requisition, $user, $remarks) {
+        $submitter = $requisition->submittedBy;
+        $nextStep = $this->getNextStep($requisition->current_step);
+
+        $requisition = DB::transaction(function () use ($requisition, $user, $remarks, $nextStep) {
             ApprovalStep::create([
                 'requisition_id' => $requisition->id,
                 'step_type' => $requisition->current_step,
@@ -70,8 +78,6 @@ class WorkflowService
                 'remarks' => $remarks,
                 'acted_at' => now(),
             ]);
-
-            $nextStep = $this->getNextStep($requisition->current_step);
 
             if ($nextStep === null) {
                 $requisition->update([
@@ -86,6 +92,28 @@ class WorkflowService
 
             return $requisition->load(['submittedBy', 'items', 'approvals.actedBy']);
         });
+
+        if ($submitter?->email) {
+            Mail::to($submitter->email)->queue(
+                new RequisitionApprovedMail(
+                    $requisition,
+                    $user,
+                    $remarks,
+                    isFullyApproved: $nextStep === null
+                )
+            );
+        }
+
+        if ($nextStep !== null) {
+            $nextApprover = $this->settingsService->getApproverForStep($nextStep);
+            if ($nextApprover?->email) {
+                Mail::to($nextApprover->email)->queue(
+                    new RequisitionPendingApprovalMail($requisition, $nextApprover)
+                );
+            }
+        }
+
+        return $requisition;
     }
 
     /**
@@ -93,7 +121,12 @@ class WorkflowService
      */
     public function deny(Requisition $requisition, User $user, ?string $remarks = null): Requisition
     {
-        return DB::transaction(function () use ($requisition, $user, $remarks) {
+        if (empty(trim((string) $remarks))) {
+            throw new InvalidArgumentException('A reason must be provided when denying a requisition.');
+        }
+
+        $submitter = $requisition->submittedBy;
+        $requisition = DB::transaction(function () use ($requisition, $user, $remarks) {
             ApprovalStep::create([
                 'requisition_id' => $requisition->id,
                 'step_type' => $requisition->current_step,
@@ -110,5 +143,13 @@ class WorkflowService
 
             return $requisition->load(['submittedBy', 'items', 'approvals.actedBy']);
         });
+
+        if ($submitter?->email) {
+            Mail::to($submitter->email)->queue(
+                new RequisitionDeniedMail($requisition, $user, $remarks)
+            );
+        }
+
+        return $requisition;
     }
 }

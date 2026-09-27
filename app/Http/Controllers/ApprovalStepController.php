@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DenyApprovalStepRequest;
 use App\Http\Requests\StoreApprovalStepRequest;
 use App\Http\Resources\RequisitionResource;
 use App\Models\Requisition;
@@ -34,16 +35,14 @@ class ApprovalStepController extends Controller
     /**
      * Deny a requisition at its current step.
      */
-    public function deny(StoreApprovalStepRequest $request, Requisition $requisition): JsonResponse
+    public function deny(DenyApprovalStepRequest $request, Requisition $requisition): JsonResponse
     {
         Gate::authorize('deny', $requisition);
-
-        $validated = $request->validated();
 
         $requisition = $this->workflowService->deny(
             $requisition,
             $request->user(),
-            $validated['remarks'] ?? null
+            $request->getReason()
         );
 
         return new RequisitionResource($requisition)->response();
