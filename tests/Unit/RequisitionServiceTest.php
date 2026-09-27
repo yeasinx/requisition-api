@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Services\RequisitionNumberService;
 use App\Services\RequisitionService;
+use App\Services\SettingsService;
 use App\Services\WorkflowService;
 use Mockery;
 use Mockery\MockInterface;
@@ -15,6 +16,8 @@ class RequisitionServiceTest extends TestCase
 
     protected RequisitionNumberService|MockInterface $requisitionNumberService;
 
+    protected SettingsService|MockInterface $settingsService;
+
     protected RequisitionService $requisitionService;
 
     protected function setUp(): void
@@ -23,10 +26,12 @@ class RequisitionServiceTest extends TestCase
 
         $this->workflowService = Mockery::mock(WorkflowService::class);
         $this->requisitionNumberService = Mockery::mock(RequisitionNumberService::class);
+        $this->settingsService = Mockery::mock(SettingsService::class);
 
         $this->requisitionService = new RequisitionService(
             $this->workflowService,
-            $this->requisitionNumberService
+            $this->requisitionNumberService,
+            $this->settingsService
         );
     }
 

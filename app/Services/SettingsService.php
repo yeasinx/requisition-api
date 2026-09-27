@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\RequisitionStep;
 use App\Models\SystemSettings;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
@@ -50,5 +51,16 @@ class SettingsService
         Cache::forget('system_settings');
 
         return $settings->fresh();
+    }
+
+    public function getApproverForStep(RequisitionStep $step): ?User
+    {
+        return match ($step) {
+            RequisitionStep::APPROVER_1 => $this->getFirstApprover(),
+            RequisitionStep::APPROVER_2 => $this->getSecondApprover(),
+            RequisitionStep::BUSINESS_CONTROLLER => $this->getBusinessController(),
+            RequisitionStep::ACCOUNTS => $this->getAccountsApprover(),
+            RequisitionStep::HR_ADMIN => $this->getHrAdminApprover(),
+        };
     }
 }

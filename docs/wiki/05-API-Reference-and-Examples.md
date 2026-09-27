@@ -27,7 +27,9 @@ Authenticates user credentials and issues a Sanctum personal access token.
 - **Response `200 OK`**:
 ```json
 {
-  "token": "1|qWeRtYuIoP1234567890...",
+  "message": "Login successful",
+  "access_token": "1|qWeRtYuIoP1234567890...",
+  "token_type": "Bearer",
   "user": {
     "id": 1,
     "name": "System Admin",
@@ -72,7 +74,7 @@ Revokes the current access token used for the request.
 - **Response `200 OK`**:
 ```json
 {
-  "message": "Logged out successfully"
+  "message": "Successfully logged out"
 }
 ```
 
@@ -87,6 +89,8 @@ List and paginate users.
 - **Query Parameters**:
   - `page` (integer, default: `1`)
   - `per_page` (integer, default: `15`)
+  - `role` (string, optional) — Filter by user role. Values: `SUPER_ADMIN`, `HR_ADMIN`, `EMPLOYEE`, `ACCOUNTS`.
+  - `search` (string, optional) — Search by name, email, or employee ID.
 - **Response `200 OK`**:
 ```json
 {
@@ -396,13 +400,79 @@ Approve the requisition at its current stage, advancing the workflow to the next
 ---
 
 ### `POST /api/requisitions/{id}/deny`
-Deny and immediately terminate the requisition workflow.
+Deny and immediately terminate the requisition workflow. A reason is **required** when denying.
 
 - **Access**: User assigned to `requisition.current_step` in `SystemSettings`.
 - **Request Body**:
 ```json
 {
-  "remarks": "Rejected: Exceeds quarterly department equipment budget."
+  "reason": "Rejected: Exceeds quarterly department equipment budget."
 }
 ```
+*(Note: `remarks` is also accepted in place of `reason` for backward compatibility. The request will fail with 422 if neither is provided.)*
 - **Response `200 OK`**: Returns updated requisition with `status: "DENIED"` and `current_step: null`.
+
+---
+
+## 6. Common Error Responses
+
+### 401 Unauthorized (missing/invalid token)
+```json
+{
+  "message": "Unauthenticated."
+}
+```
+
+### 403 Forbidden (policy denial)
+```json
+{
+  "message": "This action is unauthorized."
+}
+```
+
+### 404 Not Found
+```json
+{
+  "message": "No query results for model [App\\Models\\Requisition] 999."
+}
+```
+
+### 422 Validation Error (login)
+```json
+{
+  "message": "The provided credentials are incorrect.",
+  "errors": {
+    "email": ["The provided credentials are incorrect."]
+  }
+}
+```
+
+### 422 Validation Error (form request)
+```json
+{
+  "message": "The reason field is required when remarks is not present.",
+  "errors": {
+    "reason": ["A reason is required when denying a requisition."],
+    "remarks": ["A reason is required when denying a requisition."]
+  }
+}
+```
+
+---
+
+## 7. Email Notifications
+
+1. **Pending Approval** — Sent to the next approver in the chain when:
+   - A new requisition is submitted (`POST /api/requisitions`)
+   - A step is approved and the workflow advances (`POST /api/requisitions/{id}/approve`)
+
+2. **Step Approved** — Sent to the original submitter when any approver approves their step. Includes:
+   - The approver's name
+   - Optional remarks
+   - Whether this is a partial or final (fully approved) approval
+
+3. **Denied** — Sent to the original submitter when any approver denies. Includes:
+   - The denier's name
+   - The mandatory reason for denial
+
+Note: All emails are queued (`Mail::queue`) for async processing.

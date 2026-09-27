@@ -3,15 +3,18 @@
 namespace App\Services;
 
 use App\Enums\RequisitionStatus;
+use App\Mail\RequisitionPendingApprovalMail;
 use App\Models\Requisition;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Mail;
 
 class RequisitionService
 {
     public function __construct(
         protected WorkflowService $workflowService,
-        protected RequisitionNumberService $requisitionNumberService
+        protected RequisitionNumberService $requisitionNumberService,
+        protected SettingsService $settingsService
     ) {}
 
     /**
@@ -40,8 +43,9 @@ class RequisitionService
     {
         [$items, $totalPrice] = $this->processItems($data['items']);
         $initialStep = $this->workflowService->getInitialStep($user);
+        $initialApprover = $this->settingsService->getApproverForStep($initialStep);
 
-        return DB::transaction(function () use ($user, $items, $totalPrice, $initialStep) {
+        $requisition = DB::transaction(function () use ($user, $items, $totalPrice, $initialStep) {
             $requisition = Requisition::create([
                 'requisition_number' => $this->requisitionNumberService->generate(),
                 'submitted_by_user_id' => $user->id,
@@ -54,6 +58,14 @@ class RequisitionService
 
             return $requisition->load(['submittedBy', 'items']);
         });
+
+        if ($initialApprover?->email) {
+            Mail::to($initialApprover->email)->queue(
+                new RequisitionPendingApprovalMail($requisition, $initialApprover)
+            );
+        }
+
+        return $requisition;
     }
 
     /**

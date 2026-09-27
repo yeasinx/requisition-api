@@ -14,6 +14,7 @@ Welcome to the **Requisition Management System API** developer wiki. This docume
 | **04** | [Requisition & Approval Workflow](04-Requisition-and-Approval-Workflow.md) | Multi-tier dynamic approval engine, role-based starting steps, approval/denial lifecycle, and audit logs. |
 | **05** | [API Reference & Examples](05-API-Reference-and-Examples.md) | Complete endpoint specifications with curl commands, request bodies, and JSON response samples. |
 | **06** | [Development, Testing & Operations](06-Development-Testing-and-Operations.md) | Local environment setup, test suites (PHPUnit), database seeding, code formatting (Pint), and troubleshooting. |
+| **07** | [Client Integration Guide](07-Client-Integration-Guide.md) | Complete guide for mobile and web app developers: authentication flow, endpoint reference, error handling, workflow integration, and email notifications. |
 
 ---
 
@@ -23,3 +24,4 @@ Welcome to the **Requisition Management System API** developer wiki. This docume
 - **Want to understand the approval engine?** Read [Requisition & Approval Workflow](04-Requisition-and-Approval-Workflow.md).
 - **Looking for API schemas?** Jump to [API Reference & Examples](05-API-Reference-and-Examples.md).
 - **Understanding security & permissions?** Review [Authentication & Authorization](03-Authentication-and-Authorization.md).
+- **Building a mobile or web app?** Start with [Client Integration Guide](07-Client-Integration-Guide.md).
