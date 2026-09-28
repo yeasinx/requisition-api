@@ -14,23 +14,19 @@ http:
     data:
       - name: hr_admin_approver_user_id
         type: text
-        value: "2"
-        disabled: true
+        value: "3"
       - name: first_approver_user_id
         type: text
         value: "4"
-        disabled: true
       - name: second_approver_user_id
         type: text
         value: "5"
-        disabled: true
       - name: business_controller_user_id
         type: text
         value: "6"
-        disabled: true
       - name: accounts_approver_user_id
         type: text
-        value: "7"
+        value: "2"
   auth: inherit
 
 settings:

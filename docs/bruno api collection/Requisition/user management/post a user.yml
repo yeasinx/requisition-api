@@ -13,17 +13,17 @@ http:
     type: form-urlencoded
     data:
       - name: name
-        value: Asraful Islam
+        value: Yeasin Arafat
       - name: email
-        value: asraful@company.com
+        value: yeasin@company.com
       - name: password
         value: password123
       - name: employee_id
-        value: EMP-1033
+        value: EMP-1021
       - name: designation
-        value: Accounts
+        value: Jr Software Engineer
       - name: role
-        value: ACCOUNTS
+        value: EMPLOYEE
   auth: inherit
 
 settings:
