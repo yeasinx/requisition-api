@@ -1,0 +1,34 @@
+info:
+  name: post a user
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{baseUrl}}/users"
+  headers:
+    - name: Authorization
+      value: "{{token}}"
+  body:
+    type: form-urlencoded
+    data:
+      - name: name
+        value: Asraful Islam
+      - name: email
+        value: asraful@company.com
+      - name: password
+        value: password123
+      - name: employee_id
+        value: EMP-1033
+      - name: designation
+        value: Accounts
+      - name: role
+        value: ACCOUNTS
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

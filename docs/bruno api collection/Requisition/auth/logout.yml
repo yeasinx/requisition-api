@@ -1,0 +1,19 @@
+info:
+  name: logout
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}/logout"
+  headers:
+    - name: Authorization
+      value: "{{token}}"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

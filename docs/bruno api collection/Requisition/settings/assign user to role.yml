@@ -1,0 +1,41 @@
+info:
+  name: assign user to role
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/settings"
+  headers:
+    - name: Authorization
+      value: "{{token}}"
+  body:
+    type: multipart-form
+    data:
+      - name: hr_admin_approver_user_id
+        type: text
+        value: "2"
+        disabled: true
+      - name: first_approver_user_id
+        type: text
+        value: "4"
+        disabled: true
+      - name: second_approver_user_id
+        type: text
+        value: "5"
+        disabled: true
+      - name: business_controller_user_id
+        type: text
+        value: "6"
+        disabled: true
+      - name: accounts_approver_user_id
+        type: text
+        value: "7"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
