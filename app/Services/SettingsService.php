@@ -11,11 +11,15 @@ class SettingsService
 {
     public function getSettings(): SystemSettings
     {
-        return Cache::remember('system_settings', 3600, function () {
-            return SystemSettings::first() ?? SystemSettings::create([
+        $attributes = Cache::remember('system_settings', 3600, function () {
+            $settings = SystemSettings::first() ?? SystemSettings::create([
                 'updated_by_user_id' => 1,
             ]);
+
+            return $settings->getAttributes();
         });
+
+        return new SystemSettings()->newFromBuilder($attributes);
     }
 
     public function getFirstApprover(): ?User
