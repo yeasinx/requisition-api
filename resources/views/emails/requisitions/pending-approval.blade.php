@@ -7,9 +7,11 @@ Hello {{ $approver->name }},
 
 Requisition **{{ $requisition->requisition_number }}** has been reviewed and **approved by the Business Controller**. It has now been forwarded to your department for **payment processing**.
 
-**Submitted By:** {{ $requisition->submittedBy->name }} ({{ $requisition->submittedBy->email }})
-**Requisition Number:** {{ $requisition->requisition_number }}
-**Total Amount:** ${{ number_format($requisition->total_expected_price, 2) }}
+<x-mail::panel>
+**Submitted By:** {{ $requisition->submittedBy->name }} ({{ $requisition->submittedBy->email }})<br>
+**Requisition Number:** {{ $requisition->requisition_number }}<br>
+**Total Amount:** ৳{{ number_format($requisition->total_expected_price, 2) }}
+</x-mail::panel>
 
 Please review the requisition details and process the payment release at your earliest convenience.
 
@@ -24,9 +26,11 @@ Hello {{ $approver->name }},
 
 The **Accounts department has processed the payment** for requisition **{{ $requisition->requisition_number }}**. This requisition is now in your hands for **final verification and collection**.
 
-**Submitted By:** {{ $requisition->submittedBy->name }} ({{ $requisition->submittedBy->email }})
-**Requisition Number:** {{ $requisition->requisition_number }}
-**Total Amount:** ${{ number_format($requisition->total_expected_price, 2) }}
+<x-mail::panel>
+**Submitted By:** {{ $requisition->submittedBy->name }} ({{ $requisition->submittedBy->email }})<br>
+**Requisition Number:** {{ $requisition->requisition_number }}<br>
+**Total Amount:** ৳{{ number_format($requisition->total_expected_price, 2) }}
+</x-mail::panel>
 
 Please review and arrange for collection or take any further necessary action to complete this requisition.
 
@@ -41,10 +45,12 @@ Hello {{ $approver->name }},
 
 A requisition has been submitted and is currently waiting for your review.
 
-**Requisition Number:** {{ $requisition->requisition_number }}
-**Submitted By:** {{ $requisition->submittedBy->name }} ({{ $requisition->submittedBy->email }})
-**Current Step:** {{ $requisition->current_step?->value }}
-**Total Expected Amount:** ${{ number_format($requisition->total_expected_price, 2) }}
+<x-mail::panel>
+**Requisition Number:** {{ $requisition->requisition_number }}<br>
+**Submitted By:** {{ $requisition->submittedBy->name }} ({{ $requisition->submittedBy->email }})<br>
+**Current Step:** {{ $requisition->current_step?->value }}<br>
+**Total Expected Amount:** ৳{{ number_format($requisition->total_expected_price, 2) }}
+</x-mail::panel>
 
 <x-mail::button :url="config('app.mobile_scheme') . '://requisitions/' . $requisition->id">
     Review Requisition
