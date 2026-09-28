@@ -1,0 +1,28 @@
+info:
+  name: update a user (only HR_ADMIN & SUPER_ADMIN)
+  type: http
+  seq: 3
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/users/4"
+  headers:
+    - name: Authorization
+      value: "{{token}}"
+  body:
+    type: multipart-form
+    data:
+      - name: role
+        type: text
+        value: HR_ADMIN
+      - name: designation
+        type: text
+        value: HR ADMIN
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

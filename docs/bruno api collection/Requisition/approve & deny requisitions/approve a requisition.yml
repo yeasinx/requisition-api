@@ -1,0 +1,19 @@
+info:
+  name: approve a requisition
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: "{{baseUrl}}/requisitions/2/approve"
+  headers:
+    - name: Authorization
+      value: "{{token}}"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

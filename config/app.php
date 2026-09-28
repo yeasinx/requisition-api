@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Mobile App Deep Link Scheme
+    |--------------------------------------------------------------------------
+    |
+    | The URI scheme used in email CTA buttons to open the native mobile app.
+    | e.g. "myapp" produces links like "myapp://requisitions/42"
+    | Set APP_MOBILE_SCHEME in your .env once the mobile app name is decided.
+    |
+    */
+
+    'mobile_scheme' => env('APP_MOBILE_SCHEME', 'requisitionapp'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |

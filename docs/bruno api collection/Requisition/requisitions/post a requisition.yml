@@ -1,0 +1,38 @@
+info:
+  name: post a requisition
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{baseUrl}}/requisitions"
+  headers:
+    - name: Authorization
+      value: "{{token}}"
+  body:
+    type: json
+    data: |-
+      {
+        "items": [
+          {
+            "item_name": "MacBook Pro 16\"",
+            "description": "M3 Max, 36GB RAM, 1TB SSD for mobile developer",
+            "quantity": 1,
+            "unit_price": 3499.00
+          },
+          {
+            "item_name": "Magic Keyboard & Mouse",
+            "description": "Wireless Apple accessories",
+            "quantity": 1,
+            "unit_price": 250.00
+          }
+        ]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
