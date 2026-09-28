@@ -4,5 +4,5 @@ variables:
     value: http://localhost:8000/api
     description: ""
   - name: token
-    value: Bearer 9|TzKLdZrIXFZSHykiJwdxxYDxYczIBtcgT1D27u7gb1375322
+    value: Bearer 11|2WTe1hwjflZD8T85St7R3A4V1DXhpv1Liokg44Yc92732205
     description: ""
