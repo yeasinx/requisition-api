@@ -11,11 +11,25 @@ class SettingsService
 {
     public function getSettings(): SystemSettings
     {
-        return Cache::remember('system_settings', 3600, function () {
-            return SystemSettings::first() ?? SystemSettings::create([
+        $attributes = Cache::remember('system_settings', 3600, function () {
+            $settings = SystemSettings::first() ?? SystemSettings::create([
                 'updated_by_user_id' => 1,
             ]);
+
+            return $settings->getAttributes();
         });
+
+        // Guard against stale cache entries that stored a serialized object
+        // instead of a plain array (e.g. after a class rename or schema change).
+        if (! is_array($attributes)) {
+            Cache::forget('system_settings');
+            $settings = SystemSettings::first() ?? SystemSettings::create([
+                'updated_by_user_id' => 1,
+            ]);
+            $attributes = $settings->getAttributes();
+        }
+
+        return new SystemSettings()->newFromBuilder($attributes);
     }
 
     public function getFirstApprover(): ?User
