@@ -9,6 +9,19 @@ http:
   headers:
     - name: Authorization
       value: "{{token}}"
+  params:
+    - name: approval
+      value: mine
+      type: query
+      disabled: true
+    - name: submitted
+      value: mine
+      type: query
+      disabled: true
+    - name: trashed
+      value: only
+      type: query
+      disabled: true
   auth: inherit
 
 settings:

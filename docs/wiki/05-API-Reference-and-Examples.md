@@ -260,8 +260,17 @@ List requisitions with scoped visibility based on user role and assigned approva
 - **Access**: Authenticated
 - **Query Parameters**:
   - `status` (string, optional: `PENDING`, `APPROVED`, `DENIED`)
+  - `approval` (string, optional: `mine`) — Return only requisitions the authenticated user has approved or denied.
+  - `submitted` (string, optional: `mine`) — Return only requisitions the authenticated user submitted.
+  - `trashed` (string, optional: `only`) — `SUPER_ADMIN` only. Returns only soft-deleted requisitions. Ignored for other roles.
   - `page` (integer, default: `1`)
   - `per_page` (integer, default: `15`)
+- **Default scope** (no filters): `SUPER_ADMIN` gets every non-deleted requisition. Everyone else gets requisitions they submitted, requisitions `PENDING` at a step assigned to them, and requisitions they previously approved/denied.
+- **Filter rules**: `status`, `approval`, `submitted` and `trashed` only narrow the default scope (they never widen it) and can be combined. Unrecognized values of `approval`, `submitted` and `trashed` are ignored.
+- **Examples**:
+  - `GET /api/requisitions?submitted=mine` — only requisitions I submitted.
+  - `GET /api/requisitions?approval=mine&status=DENIED` — requisitions I denied.
+  - `GET /api/requisitions?trashed=only` — soft-deleted requisitions (`SUPER_ADMIN`).
 - **Response `200 OK`**:
 ```json
 {
@@ -305,7 +314,8 @@ List requisitions with scoped visibility based on user role and assigned approva
       ],
       "approvals": [],
       "created_at": "2026-08-31T06:00:00.000000Z",
-      "updated_at": "2026-08-31T06:00:00.000000Z"
+      "updated_at": "2026-08-31T06:00:00.000000Z",
+      "deleted_at": null
     }
   ],
   "meta": { ... }
@@ -344,7 +354,7 @@ Create a new requisition with one or more line items.
 ### `GET /api/requisitions/{id}`
 Retrieve detailed view of a single requisition including items and full approval audit logs.
 
-- **Access**: Authorized (Submitter, Current Approver, or Super Admin)
+- **Access**: Authorized (Submitter, Current Approver, any user who previously approved/denied it, or Super Admin). Soft-deleted requisitions return `404`.
 - **Response `200 OK`**: Returns full requisition resource with `items` and `approvals` arrays.
 
 ---
