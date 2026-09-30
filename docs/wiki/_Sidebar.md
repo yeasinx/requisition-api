@@ -17,6 +17,7 @@
 #### API & Developer Guides
 - [**05. API Reference & Payloads**](05-API-Reference-and-Examples.md)
 - [**06. Dev, Testing & Ops**](06-Development-Testing-and-Operations.md)
+- [**07. Client Integration Guide**](07-Client-Integration-Guide.md)
 
 ---
 
