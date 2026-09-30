@@ -93,7 +93,7 @@ The API is structured around four distinct roles. You should control UI visibili
 | **Deleted Requisitions (`?trashed=only`)** | ✅ | ❌ | ❌ | ❌ |
 | **Submit Requisition** | ❌ | ✅ | ✅ | ✅ |
 | **Own Requisitions** | ❌ | ✅ | ✅ | ✅ |
-| **Approval Queue** | ❌ | ✅ | ✅ | ❌ |
+| **Approval Queue** (`?approval=pending`) | ❌ | ✅ | ✅ | ❌ |
 
 > [!NOTE] 
 > The `SUPER_ADMIN` has a global view of all requisitions but does not participate in the approval workflow or submit their own requisitions.
@@ -236,7 +236,7 @@ The API is structured around four distinct roles. You should control UI visibili
 
 #### List Requisitions
 - **Method & URL:** `GET /api/requisitions`
-- **Query Params:** `status` (PENDING, APPROVED, DENIED), `approval=mine` (only requisitions you approved/denied), `submitted=mine` (only requisitions you submitted), `trashed=only` (SUPER_ADMIN only: list soft-deleted requisitions), `page`, `per_page`
+- **Query Params:** `status` (PENDING, APPROVED, DENIED), `approval=mine` (only requisitions you approved/denied) or `approval=pending` (only requisitions waiting for your approval), `submitted=mine` (only requisitions you submitted), `trashed=only` (SUPER_ADMIN only: list soft-deleted requisitions), `page`, `per_page`
 - **Auth Required:** Yes (Auto-scoped by role)
 - **Response:** Standard Paginated Response of Requisitions (with nested `submitted_by`, `items[]`, `approvals[]`).
 
@@ -436,7 +436,7 @@ The system uses a dynamic 5-tier approval chain: `APPROVER_1` → `APPROVER_2` �
 flowchart TD
     Start[User Submits Requisition] --> API_Calc[API Determines Start Step]
     API_Calc --> PENDING{Status: PENDING}
-    PENDING --> Action[Current Approver views Queue]
+    PENDING --> Action[Current Approver views Queue<br/>GET /api/requisitions?approval=pending]
     Action -- Approves --> NextStep{Is last step?}
     NextStep -- No --> PENDING
     NextStep -- Yes --> APPROVED[Status: APPROVED\ncurrent_step: null]

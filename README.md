@@ -15,7 +15,7 @@ A robust, enterprise-grade RESTful API for organizational requisition and purcha
 - **Dynamic 5-Tier Approval Workflow**: Automatic progression through `APPROVER_1` (PM) ➔ `APPROVER_2` (CEO) ➔ `BUSINESS_CONTROLLER` ➔ `ACCOUNTS` ➔ `HR_ADMIN`.
 - **Role-Aware Starting Steps**: Smart workflow initialization that dynamically selects the starting stage based on the submitter's organizational role (e.g. CEO submissions jump straight to Business Controller).
 - **Clean Architecture & Domain Services**: Clear separation of concerns with thin controllers, dedicated domain service classes ([`WorkflowService`](file:///home/zero/Documents/pc/requisition-api/app/Services/WorkflowService.php), [`RequisitionService`](file:///home/zero/Documents/pc/requisition-api/app/Services/RequisitionService.php), [`SettingsService`](file:///home/zero/Documents/pc/requisition-api/app/Services/SettingsService.php)), and custom form requests.
-- **Granular Policy Authorization**: Comprehensive Gate/Policy protection across all actions and auto-scoped query filtering for pending reviews.
+- **Granular Policy Authorization**: Comprehensive Gate/Policy protection across all actions and auto-scoped query filtering with opt-in list filters (`status`, `approval=mine|pending`, `submitted=mine`, `trashed=only`).
 - **Full Audit Trail**: Every approval and denial action is immutably logged with timestamp, reviewer ID, stage type, decision, and remarks.
 - **Structured JSON API Resources**: Predictable, clean API payloads using Laravel API Resource transformations.
 - **Soft Deletes**: Data preservation across users and requisitions with soft deletion support.
@@ -130,7 +130,7 @@ Running `php artisan db:seed` provisions the initial administrator:
 ### Requisitions & Approvals
 | Method | Endpoint | Access | Description |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/api/requisitions` | Authenticated | List requisitions (auto-scoped by role and step; `?approval=mine` for ones you acted on, `?submitted=mine` for ones you submitted; `SUPER_ADMIN` can add `?trashed=only` for deleted) |
+| `GET` | `/api/requisitions` | Authenticated | List requisitions (auto-scoped by role and step; `?approval=mine` for ones you acted on, `?approval=pending` for ones awaiting your approval, `?submitted=mine` for ones you submitted; `SUPER_ADMIN` can add `?trashed=only` for deleted) |
 | `POST` | `/api/requisitions` | Authenticated | Create a requisition with line items |
 | `GET` | `/api/requisitions/{id}` | Submitter / Current or past Approver / Admin | View full requisition details & audit log |
 | `PUT` | `/api/requisitions/{id}` | Submitter (before approvals) | Update requisition line items & totals |

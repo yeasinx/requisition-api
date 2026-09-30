@@ -81,4 +81,4 @@ When a user calls `GET /api/requisitions`, query scoping is automatically applie
    - Requisitions that are currently `PENDING` and waiting at an approval step assigned to this user in `SystemSettings`.
    - Requisitions that this user previously reviewed/acted upon (`whereHas('approvals', ...)`) in the past.
 
-Any role can add `?approval=mine` (only requisitions the user has approved or denied) and/or `?submitted=mine` (only requisitions the user submitted) to narrow the result. The filter only narrows the scoped query; it never widens visibility.
+Any role can add `?approval=mine` (only requisitions the user has approved or denied) or `?approval=pending` (only `PENDING` requisitions waiting at a step assigned to the user), and/or `?submitted=mine` (only requisitions the user submitted) to narrow the result. The filter only narrows the scoped query; it never widens visibility.

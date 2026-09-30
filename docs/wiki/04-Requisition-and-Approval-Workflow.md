@@ -71,6 +71,10 @@ stateDiagram-v2
     DENIED --> [*]
 ```
 
+### 3.0 Finding Requisitions to Act On
+
+Approvers list their queue with `GET /api/requisitions?approval=pending` (only `PENDING` requisitions waiting at a step assigned to them). `?approval=mine` lists those they already approved or denied, and `?submitted=mine` lists those they submitted. See [API Reference](05-API-Reference-and-Examples.md) for all list filters.
+
 ### 3.1 Approving a Requisition (`POST /api/requisitions/{id}/approve`)
 1. **Authorization Check**: `RequisitionPolicy::approve` verifies that:
    - Requisition status is `PENDING`.

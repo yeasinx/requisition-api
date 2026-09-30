@@ -260,7 +260,7 @@ List requisitions with scoped visibility based on user role and assigned approva
 - **Access**: Authenticated
 - **Query Parameters**:
   - `status` (string, optional: `PENDING`, `APPROVED`, `DENIED`)
-  - `approval` (string, optional: `mine`) — Return only requisitions the authenticated user has approved or denied.
+  - `approval` (string, optional: `mine` or `pending`) — `mine`: only requisitions the authenticated user has already approved or denied. `pending`: only `PENDING` requisitions currently waiting at a step assigned to the authenticated user (their approval queue).
   - `submitted` (string, optional: `mine`) — Return only requisitions the authenticated user submitted.
   - `trashed` (string, optional: `only`) — `SUPER_ADMIN` only. Returns only soft-deleted requisitions. Ignored for other roles.
   - `page` (integer, default: `1`)
@@ -268,6 +268,7 @@ List requisitions with scoped visibility based on user role and assigned approva
 - **Default scope** (no filters): `SUPER_ADMIN` gets every non-deleted requisition. Everyone else gets requisitions they submitted, requisitions `PENDING` at a step assigned to them, and requisitions they previously approved/denied.
 - **Filter rules**: `status`, `approval`, `submitted` and `trashed` only narrow the default scope (they never widen it) and can be combined. Unrecognized values of `approval`, `submitted` and `trashed` are ignored.
 - **Examples**:
+  - `GET /api/requisitions?approval=pending` — only requisitions waiting for my approval.
   - `GET /api/requisitions?submitted=mine` — only requisitions I submitted.
   - `GET /api/requisitions?approval=mine&status=DENIED` — requisitions I denied.
   - `GET /api/requisitions?trashed=only` — soft-deleted requisitions (`SUPER_ADMIN`).
