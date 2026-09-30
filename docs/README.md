@@ -11,4 +11,5 @@ Welcome to the internal documentation repository for the Requisition Management 
 - **[04. Requisition & Approval Workflow](wiki/04-Requisition-and-Approval-Workflow.md)**: Multi-stage workflow engine, step routing, approval/denial lifecycle.
 - **[05. API Reference & Examples](wiki/05-API-Reference-and-Examples.md)**: Detailed endpoint catalog with request/response payloads.
 - **[06. Development, Testing & Operations](wiki/06-Development-Testing-and-Operations.md)**: Setup guide, running tests, seeders, Pint formatting.
+- **[07. Client Integration Guide](wiki/07-Client-Integration-Guide.md)**: Guide for mobile/web client developers: auth flow, endpoints, errors, workflow integration.
 - **[Complete System Flow & Architectural Specification](SYSTEM_FLOW.md)**: Consolidated single-page system flow and reference.
