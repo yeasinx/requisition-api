@@ -110,4 +110,15 @@ To guarantee financial and audit integrity:
 - **Deleting Requisitions (`DELETE /api/requisitions/{id}`)**:
   - Can only be performed by the original submitter.
   - Allowed **only while status is still `PENDING`**.
-  - Uses soft-deletes (`deleted_at`).
+  - Uses soft-deletes (`deleted_at`). Deleted requisitions are hidden from all endpoints; only `SUPER_ADMIN` can list them, via `GET /api/requisitions?trashed=only`.
+
+---
+
+## 5. Post-Decision Visibility
+
+After a requisition is approved or denied, it stays viewable (`GET /api/requisitions/{id}`) by:
+- The original submitter.
+- Every user who acted on it (approved or denied at any step), since `RequisitionPolicy::view` checks the `approvals` audit trail, not just `current_step`.
+- `SUPER_ADMIN`.
+
+This also matches the `GET /api/requisitions` list, which already includes requisitions the user previously acted on.

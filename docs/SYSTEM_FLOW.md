@@ -134,8 +134,10 @@ flowchart TD
 ### Phase 3: Multi-Stage Approval Chain
 1. **Viewing Pending Requisitions**:
    * Calling `GET /api/requisitions` automatically filters results based on the logged-in user's active approval responsibilities.
-   * `SUPER_ADMIN` sees all requisitions.
-   * Normal approvers only see requisitions waiting at their designated step or submitted by them.
+   * `SUPER_ADMIN` sees all non-deleted requisitions, and can pass `?trashed=only` to list soft-deleted ones instead.
+   * Any user can add `?approval=mine` (requisitions they approved/denied) or `?submitted=mine` (requisitions they submitted) to narrow the list.
+   * Normal approvers see requisitions waiting at their designated step, submitted by them, or that they previously approved/denied.
+   * `RequisitionPolicy::view` grants single-requisition access to the same set, so an approver can still open a requisition after acting on it.
 2. **Approving a Requisition**:
    * Approver calls `POST /api/requisitions/{id}/approve` (optional `remarks`).
    * [`RequisitionPolicy::approve`](file:///home/zero/Documents/pc/requisition-api/app/Policies/RequisitionPolicy.php#L69) verifies that the user is the assigned approver for the current step.
@@ -161,10 +163,10 @@ flowchart TD
 | `DELETE`| `/api/users/{id}` | `SUPER_ADMIN` | Soft-deletes user account |
 | `GET` | `/api/settings` | `SUPER_ADMIN` | View current system approver assignments |
 | `PUT` | `/api/settings` | `SUPER_ADMIN` | Update assigned approvers |
-| `GET` | `/api/requisitions` | Authenticated | List requisitions (scoped by role & assigned steps) |
+| `GET` | `/api/requisitions` | Authenticated | List requisitions (scoped by role & assigned steps; `?approval=mine` lists ones you acted on, `?submitted=mine` ones you submitted; `?trashed=only` for `SUPER_ADMIN` lists deleted) |
 | `POST` | `/api/requisitions` | Authenticated | Create a requisition with line items |
-| `GET` | `/api/requisitions/{id}`| Authorized | View requisition details with items & approval audit trail |
-| `PUT` | `/api/requisitions/{id}`| Submitter / Admin | Update requisition line items and recalculate totals |
-| `DELETE`| `/api/requisitions/{id}`| Submitter / Admin | Soft-delete a requisition |
+| `GET` | `/api/requisitions/{id}`| Submitter / Current or past approver / `SUPER_ADMIN` | View requisition details with items & approval audit trail |
+| `PUT` | `/api/requisitions/{id}`| Submitter (before approvals) | Update requisition line items and recalculate totals |
+| `DELETE`| `/api/requisitions/{id}`| Submitter (while pending) | Soft-delete a requisition |
 | `POST` | `/api/requisitions/{id}/approve` | Designated Approver | Approve requisition at current step and advance workflow |
 | `POST` | `/api/requisitions/{id}/deny` | Designated Approver | Deny requisition and halt workflow |

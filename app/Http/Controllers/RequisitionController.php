@@ -32,8 +32,12 @@ class RequisitionController extends Controller
         $user = $request->user();
         $query = Requisition::with(['submittedBy', 'items', 'approvals.actedBy']);
 
-        // Super Admin sees everything
-        if ($user->role !== UserType::SUPER_ADMIN) {
+        // Super Admin sees everything, and can list deleted ones with ?trashed=only
+        if ($user->role === UserType::SUPER_ADMIN) {
+            if ($request->query('trashed') === 'only') {
+                $query->onlyTrashed();
+            }
+        } else {
             $settings = $this->settingsService->getSettings();
 
             $assignedSteps = [];
@@ -70,6 +74,16 @@ class RequisitionController extends Controller
                     $approvalQuery->where('acted_by_user_id', $user->id);
                 });
             });
+        }
+
+        // Only requisitions this user has approved/denied
+        if ($request->query('approval') === 'mine') {
+            $query->whereHas('approvals', fn ($q) => $q->where('acted_by_user_id', $user->id));
+        }
+
+        // Only requisitions this user submitted
+        if ($request->query('submitted') === 'mine') {
+            $query->where('submitted_by_user_id', $user->id);
         }
 
         // Status filtering

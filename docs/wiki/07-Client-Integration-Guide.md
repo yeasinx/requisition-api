@@ -90,6 +90,7 @@ The API is structured around four distinct roles. You should control UI visibili
 | **System Settings** | ✅ | ❌ | ❌ | ❌ |
 | **User Management** | ✅ | ✅ | ❌ | ❌ |
 | **All Requisitions (Read-only)** | ✅ | ❌ | ❌ | ❌ |
+| **Deleted Requisitions (`?trashed=only`)** | ✅ | ❌ | ❌ | ❌ |
 | **Submit Requisition** | ❌ | ✅ | ✅ | ✅ |
 | **Own Requisitions** | ❌ | ✅ | ✅ | ✅ |
 | **Approval Queue** | ❌ | ✅ | ✅ | ❌ |
@@ -235,7 +236,7 @@ The API is structured around four distinct roles. You should control UI visibili
 
 #### List Requisitions
 - **Method & URL:** `GET /api/requisitions`
-- **Query Params:** `status` (PENDING, APPROVED, DENIED), `page`, `per_page`
+- **Query Params:** `status` (PENDING, APPROVED, DENIED), `approval=mine` (only requisitions you approved/denied), `submitted=mine` (only requisitions you submitted), `trashed=only` (SUPER_ADMIN only: list soft-deleted requisitions), `page`, `per_page`
 - **Auth Required:** Yes (Auto-scoped by role)
 - **Response:** Standard Paginated Response of Requisitions (with nested `submitted_by`, `items[]`, `approvals[]`).
 
@@ -260,7 +261,7 @@ The API is structured around four distinct roles. You should control UI visibili
 
 #### Get Requisition Details
 - **Method & URL:** `GET /api/requisitions/{id}`
-- **Auth Required:** Yes
+- **Auth Required:** Yes (Submitter, current approver, any user who already approved/denied it, or Super Admin)
 - **Response (200 OK):** Full detail with `items` and approval audit trail.
 
 #### Update Requisition

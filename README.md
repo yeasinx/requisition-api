@@ -130,9 +130,9 @@ Running `php artisan db:seed` provisions the initial administrator:
 ### Requisitions & Approvals
 | Method | Endpoint | Access | Description |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/api/requisitions` | Authenticated | List requisitions (auto-scoped by role and step) |
+| `GET` | `/api/requisitions` | Authenticated | List requisitions (auto-scoped by role and step; `?approval=mine` for ones you acted on, `?submitted=mine` for ones you submitted; `SUPER_ADMIN` can add `?trashed=only` for deleted) |
 | `POST` | `/api/requisitions` | Authenticated | Create a requisition with line items |
-| `GET` | `/api/requisitions/{id}` | Submitter / Approver / Admin | View full requisition details & audit log |
+| `GET` | `/api/requisitions/{id}` | Submitter / Current or past Approver / Admin | View full requisition details & audit log |
 | `PUT` | `/api/requisitions/{id}` | Submitter (before approvals) | Update requisition line items & totals |
 | `DELETE` | `/api/requisitions/{id}` | Submitter (while pending) | Soft-delete a requisition |
 | `POST` | `/api/requisitions/{id}/approve` | Designated Approver | Approve requisition and advance workflow |

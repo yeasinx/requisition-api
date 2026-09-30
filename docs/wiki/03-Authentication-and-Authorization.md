@@ -45,7 +45,7 @@ Laravel Policies guard all resource mutations and queries.
 | Action | Gate Method | Authorized Users / Conditions |
 | :--- | :--- | :--- |
 | **List All / Scoped** | `viewAny` | All authenticated users. (Results are automatically scoped based on role and assigned steps in `RequisitionController@index`). |
-| **View Details** | `view` | `SUPER_ADMIN`, Submitter of the requisition, or the designated approver for the requisition's `current_step`. |
+| **View Details** | `view` | `SUPER_ADMIN`, Submitter of the requisition, any user who has already approved/denied it (recorded in `approvals`), or the designated approver for the requisition's `current_step`. Soft-deleted requisitions are not retrievable (404). |
 | **Create Requisition** | `create` | Any authenticated user *except* `SUPER_ADMIN` (Admins manage settings and users). |
 | **Update Requisition** | `update` | Submitter only, and **only before any approvals have taken place** (`approvals()->count() === 0`). |
 | **Delete Requisition** | `delete` | Submitter only, and **only while status is still `PENDING`**. |
@@ -75,8 +75,10 @@ Laravel Policies guard all resource mutations and queries.
 
 When a user calls `GET /api/requisitions`, query scoping is automatically applied in `RequisitionController@index`:
 
-1. **`SUPER_ADMIN`**: Can view all requisitions in the system across all departments and statuses.
+1. **`SUPER_ADMIN`**: Can view all non-deleted requisitions in the system across all departments and statuses. Passing `?trashed=only` returns only soft-deleted requisitions instead (`deleted_at` is set in the response). The parameter is ignored for other roles.
 2. **Other Users**:
    - Requisitions created/submitted by themselves (`submitted_by_user_id = user.id`).
    - Requisitions that are currently `PENDING` and waiting at an approval step assigned to this user in `SystemSettings`.
    - Requisitions that this user previously reviewed/acted upon (`whereHas('approvals', ...)`) in the past.
+
+Any role can add `?approval=mine` (only requisitions the user has approved or denied) and/or `?submitted=mine` (only requisitions the user submitted) to narrow the result. The filter only narrows the scoped query; it never widens visibility.

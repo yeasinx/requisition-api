@@ -34,6 +34,11 @@ class RequisitionPolicy
             return true;
         }
 
+        // Anyone who has already acted on the requisition can view it
+        if ($requisition->approvals()->where('acted_by_user_id', $user->id)->exists()) {
+            return true;
+        }
+
         $settings = $this->settingsService->getSettings();
 
         return match ($requisition->current_step) {

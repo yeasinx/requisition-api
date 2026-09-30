@@ -105,6 +105,8 @@ Gate::authorize('approve', $requisition);
 ```
 The policy evaluates whether the authenticated user is currently assigned as the approver for that specific step (`APPROVER_1`, `APPROVER_2`, `BUSINESS_CONTROLLER`, `ACCOUNTS`, `HR_ADMIN`).
 
+Read access (`RequisitionPolicy::view`) is broader: besides the submitter, `SUPER_ADMIN` and the current-step approver, any user who already approved or denied the requisition keeps access, so approvers can still open requisitions after the workflow has moved on or ended.
+
 ---
 
 ## 5. Request-Response Lifecycle Example
