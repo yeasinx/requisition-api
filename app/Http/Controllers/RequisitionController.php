@@ -31,6 +31,7 @@ class RequisitionController extends Controller
 
         $user = $request->user();
         $query = Requisition::with(['submittedBy', 'items', 'approvals.actedBy']);
+        $assignedSteps = [];
 
         // Super Admin sees everything, and can list deleted ones with ?trashed=only
         if ($user->role === UserType::SUPER_ADMIN) {
@@ -40,7 +41,6 @@ class RequisitionController extends Controller
         } else {
             $settings = $this->settingsService->getSettings();
 
-            $assignedSteps = [];
             if ($user->id === $settings->first_approver_user_id) {
                 $assignedSteps[] = RequisitionStep::APPROVER_1;
             }
@@ -76,9 +76,12 @@ class RequisitionController extends Controller
             });
         }
 
-        // Only requisitions this user has approved/denied
+        // approval=mine: already approved/denied by this user; approval=pending: waiting for this user's approval
         if ($request->query('approval') === 'mine') {
             $query->whereHas('approvals', fn ($q) => $q->where('acted_by_user_id', $user->id));
+        } elseif ($request->query('approval') === 'pending') {
+            $query->where('status', RequisitionStatus::PENDING)
+                ->whereIn('current_step', $assignedSteps);
         }
 
         // Only requisitions this user submitted
