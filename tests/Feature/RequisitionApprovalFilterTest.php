@@ -106,6 +106,29 @@ class RequisitionApprovalFilterTest extends TestCase
         $this->assertEqualsCanonicalizing([$this->approvedByMe->id, $this->deniedByMe->id], $ids);
     }
 
+    public function test_approval_pending_returns_only_requisitions_awaiting_the_users_approval(): void
+    {
+        $awaiting = $this->makeRequisition('REQ-2026-0004', $this->employee, RequisitionStatus::PENDING, RequisitionStep::APPROVER_1);
+
+        $this->actingAs($this->approver)
+            ->getJson('/api/requisitions?approval=pending')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $awaiting->id);
+
+        // The submitter is not the assigned approver, so nothing awaits them
+        $this->actingAs($this->employee)
+            ->getJson('/api/requisitions?approval=pending')
+            ->assertOk()
+            ->assertJsonCount(0, 'data');
+
+        $superAdmin = User::factory()->create(['role' => UserType::SUPER_ADMIN]);
+        $this->actingAs($superAdmin)
+            ->getJson('/api/requisitions?approval=pending')
+            ->assertOk()
+            ->assertJsonCount(0, 'data');
+    }
+
     public function test_approval_mine_combines_with_status_filter(): void
     {
         $this->actingAs($this->approver)
