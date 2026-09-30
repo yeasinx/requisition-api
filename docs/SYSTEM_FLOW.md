@@ -92,7 +92,7 @@ flowchart TD
     end
 
     subgraph Phase 3: Approval Chain Execution
-        K --> L["Approver views list: GET /api/requisitions (Filtered by assigned steps)"]
+        K --> L["Approver views queue: GET /api/requisitions?approval=pending (Filtered by assigned steps)"]
         L --> M{"Decision via POST /api/requisitions/{id}/approve or /deny"}
         M -->|"DENY"| N["Record ApprovalStep (DENIED) -> Status = DENIED, Step = null"]
         M -->|"APPROVE"| O["Record ApprovalStep (APPROVED)"]
@@ -135,7 +135,7 @@ flowchart TD
 1. **Viewing Pending Requisitions**:
    * Calling `GET /api/requisitions` automatically filters results based on the logged-in user's active approval responsibilities.
    * `SUPER_ADMIN` sees all non-deleted requisitions, and can pass `?trashed=only` to list soft-deleted ones instead.
-   * Any user can add `?approval=mine` (requisitions they approved/denied) or `?submitted=mine` (requisitions they submitted) to narrow the list.
+   * Any user can add `?approval=pending` (requisitions waiting for their approval), `?approval=mine` (requisitions they approved/denied) or `?submitted=mine` (requisitions they submitted) to narrow the list.
    * Normal approvers see requisitions waiting at their designated step, submitted by them, or that they previously approved/denied.
    * `RequisitionPolicy::view` grants single-requisition access to the same set, so an approver can still open a requisition after acting on it.
 2. **Approving a Requisition**:
@@ -163,7 +163,7 @@ flowchart TD
 | `DELETE`| `/api/users/{id}` | `SUPER_ADMIN` | Soft-deletes user account |
 | `GET` | `/api/settings` | `SUPER_ADMIN` | View current system approver assignments |
 | `PUT` | `/api/settings` | `SUPER_ADMIN` | Update assigned approvers |
-| `GET` | `/api/requisitions` | Authenticated | List requisitions (scoped by role & assigned steps; `?approval=mine` lists ones you acted on, `?submitted=mine` ones you submitted; `?trashed=only` for `SUPER_ADMIN` lists deleted) |
+| `GET` | `/api/requisitions` | Authenticated | List requisitions (scoped by role & assigned steps; `?approval=mine` lists ones you acted on, `?approval=pending` ones awaiting you, `?submitted=mine` ones you submitted; `?trashed=only` for `SUPER_ADMIN` lists deleted) |
 | `POST` | `/api/requisitions` | Authenticated | Create a requisition with line items |
 | `GET` | `/api/requisitions/{id}`| Submitter / Current or past approver / `SUPER_ADMIN` | View requisition details with items & approval audit trail |
 | `PUT` | `/api/requisitions/{id}`| Submitter (before approvals) | Update requisition line items and recalculate totals |
