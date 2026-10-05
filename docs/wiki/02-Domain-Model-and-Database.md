@@ -15,6 +15,7 @@ erDiagram
     REQUISITIONS ||--o{ APPROVAL_STEPS : "has audit trail"
     REQUISITIONS ||--o{ REQUISITION_ATTACHMENTS : "has files"
     USERS ||--o{ REQUISITION_ATTACHMENTS : "uploads"
+    REQUISITIONS }o--o{ CC_CONTACTS : "cc_contact_requisition"
     USERS ||--o| SYSTEM_SETTINGS : "assigned as first_approver"
     USERS ||--o| SYSTEM_SETTINGS : "assigned as second_approver"
     USERS ||--o| SYSTEM_SETTINGS : "assigned as business_controller"
@@ -69,6 +70,16 @@ erDiagram
         bigint size
         timestamp created_at
         timestamp updated_at
+    }
+
+    CC_CONTACTS {
+        bigint id PK
+        string name
+        string designation "nullable"
+        string email "unique among non-deleted"
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
     }
 
     APPROVAL_STEPS {
@@ -145,6 +156,7 @@ Records the explicit decision made on an audit step:
   - `submittedBy()`: `belongsTo(User::class, 'submitted_by_user_id')`
   - `items()`: `hasMany(RequisitionItem::class)`
   - `attachments()`: `hasMany(RequisitionAttachment::class)`
+  - `ccContacts()`: `belongsToMany(CcContact::class)->withTrashed()` (pivot `cc_contact_requisition`)
   - `approvals()`: `hasMany(ApprovalStep::class)`
 - **Casts**: `current_step => RequisitionStep::class`, `status => RequisitionStatus::class`, `total_expected_price => decimal:2`
 
@@ -161,6 +173,13 @@ Records the explicit decision made on an audit step:
   - `uploadedBy()`: `belongsTo(User::class, 'uploaded_by_user_id')`
 - **Behavior**: Deleting a record also deletes its stored file. Soft-deleting a requisition keeps its files.
 - **Limits** (model constants): types `pdf,doc,docx,xls,xlsx`, 10 MB per file, 5 per requisition
+
+### `CcContact` (`App\Models\CcContact`)
+- **Traits**: `SoftDeletes`
+- **Columns**: `name`, `designation` (nullable), `email`
+- **Relationships**:
+  - `requisitions()`: `belongsToMany(Requisition::class)`
+- **Purpose**: A directory of people, managed by SUPER_ADMIN, who can be CC'd on requisition emails. Soft-deleted contacts stay linked to past requisitions.
 
 ### `ApprovalStep` (`App\Models\ApprovalStep`)
 - **Traits**: `HasFactory`

@@ -131,10 +131,15 @@ Running `php artisan db:seed` provisions the initial administrator:
 | Method | Endpoint | Access | Description |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/api/requisitions` | Authenticated | List requisitions (auto-scoped by role and step; `?approval=mine` for ones you acted on, `?approval=pending` for ones awaiting your approval, `?submitted=mine` for ones you submitted; `SUPER_ADMIN` can add `?trashed=only` for deleted) |
-| `POST` | `/api/requisitions` | Authenticated | Create a requisition with line items (optionally multipart with `attachments[]`) |
+| `POST` | `/api/requisitions` | Authenticated | Create a requisition with line items (optionally multipart with `attachments[]`, optional `cc_contact_ids[]`) |
 | `GET` | `/api/requisitions/{id}` | Submitter / Current or past Approver / Admin | View full requisition details & audit log |
 | `PUT` | `/api/requisitions/{id}` | Submitter (before approvals) | Update requisition line items & totals |
 | `DELETE` | `/api/requisitions/{id}` | Submitter (while pending) | Soft-delete a requisition |
+| `GET` | `/api/cc-contacts` | Authenticated | List CC contacts (for the CC picker) |
+| `POST` | `/api/cc-contacts` | `SUPER_ADMIN` | Add a CC contact (name, designation, email) |
+| `GET` | `/api/cc-contacts/{id}` | Authenticated | View a CC contact |
+| `PUT` | `/api/cc-contacts/{id}` | `SUPER_ADMIN` | Update a CC contact |
+| `DELETE` | `/api/cc-contacts/{id}` | `SUPER_ADMIN` | Soft-delete a CC contact |
 | `POST` | `/api/requisitions/{id}/attachments` | Submitter (before approvals) | Upload PDF / Word / Excel files (max 10 MB each, 5 per requisition) |
 | `GET` | `/api/requisitions/{id}/attachments/{attachmentId}` | Anyone who can view the requisition | Download an attachment |
 | `DELETE` | `/api/requisitions/{id}/attachments/{attachmentId}` | Submitter (before approvals) | Delete an attachment |

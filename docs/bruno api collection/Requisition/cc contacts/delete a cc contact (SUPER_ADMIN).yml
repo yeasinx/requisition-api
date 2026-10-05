@@ -1,0 +1,19 @@
+info:
+  name: delete a cc contact (SUPER_ADMIN)
+  type: http
+  seq: 4
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/cc-contacts/1"
+  headers:
+    - name: Authorization
+      value: "{{token}}"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
