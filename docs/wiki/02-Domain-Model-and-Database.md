@@ -13,6 +13,8 @@ erDiagram
     USERS ||--o{ SYSTEM_SETTINGS : "updated_by"
     REQUISITIONS ||--|{ REQUISITION_ITEMS : "contains"
     REQUISITIONS ||--o{ APPROVAL_STEPS : "has audit trail"
+    REQUISITIONS ||--o{ REQUISITION_ATTACHMENTS : "has files"
+    USERS ||--o{ REQUISITION_ATTACHMENTS : "uploads"
     USERS ||--o| SYSTEM_SETTINGS : "assigned as first_approver"
     USERS ||--o| SYSTEM_SETTINGS : "assigned as second_approver"
     USERS ||--o| SYSTEM_SETTINGS : "assigned as business_controller"
@@ -53,6 +55,18 @@ erDiagram
         integer quantity
         decimal unit_price
         decimal total_price
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    REQUISITION_ATTACHMENTS {
+        bigint id PK
+        bigint requisition_id FK
+        bigint uploaded_by_user_id FK
+        string original_name
+        string path
+        string mime_type
+        bigint size
         timestamp created_at
         timestamp updated_at
     }
@@ -130,6 +144,7 @@ Records the explicit decision made on an audit step:
 - **Relationships**:
   - `submittedBy()`: `belongsTo(User::class, 'submitted_by_user_id')`
   - `items()`: `hasMany(RequisitionItem::class)`
+  - `attachments()`: `hasMany(RequisitionAttachment::class)`
   - `approvals()`: `hasMany(ApprovalStep::class)`
 - **Casts**: `current_step => RequisitionStep::class`, `status => RequisitionStatus::class`, `total_expected_price => decimal:2`
 
@@ -138,6 +153,14 @@ Records the explicit decision made on an audit step:
 - **Relationships**:
   - `requisition()`: `belongsTo(Requisition::class)`
 - **Casts**: `unit_price => decimal:2`, `total_price => decimal:2`, `quantity => integer`
+
+### `RequisitionAttachment` (`App\Models\RequisitionAttachment`)
+- **Columns**: `requisition_id`, `uploaded_by_user_id`, `original_name`, `path` (on the private `local` disk under `requisitions/{requisition_id}/`), `mime_type`, `size` (bytes)
+- **Relationships**:
+  - `requisition()`: `belongsTo(Requisition::class)`
+  - `uploadedBy()`: `belongsTo(User::class, 'uploaded_by_user_id')`
+- **Behavior**: Deleting a record also deletes its stored file. Soft-deleting a requisition keeps its files.
+- **Limits** (model constants): types `pdf,doc,docx,xls,xlsx`, 10 MB per file, 5 per requisition
 
 ### `ApprovalStep` (`App\Models\ApprovalStep`)
 - **Traits**: `HasFactory`

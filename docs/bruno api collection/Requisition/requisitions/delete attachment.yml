@@ -1,0 +1,19 @@
+info:
+  name: delete attachment
+  type: http
+  seq: 8
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/requisitions/1/attachments/1"
+  headers:
+    - name: Authorization
+      value: "{{token}}"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
