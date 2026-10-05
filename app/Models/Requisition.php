@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -29,6 +30,14 @@ class Requisition extends Model
     public function attachments(): HasMany
     {
         return $this->hasMany(RequisitionAttachment::class);
+    }
+
+    /**
+     * People CC'd on this requisition's emails (kept even if the contact is later deleted).
+     */
+    public function ccContacts(): BelongsToMany
+    {
+        return $this->belongsToMany(CcContact::class)->withTrashed();
     }
 
     public function approvals(): HasMany

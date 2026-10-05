@@ -33,6 +33,7 @@ class RequisitionResource extends JsonResource
             // Conditional loading to prevent N+1 query issues
             'items' => RequisitionItemResource::collection($this->whenLoaded('items')),
             'attachments' => RequisitionAttachmentResource::collection($this->whenLoaded('attachments')),
+            'cc_contacts' => CcContactResource::collection($this->whenLoaded('ccContacts')),
             'approvals' => ApprovalStepResource::collection($this->whenLoaded('approvals')),
 
             'created_at' => $this->created_at?->toIso8601String(),

@@ -11,6 +11,7 @@ use App\Models\Requisition;
 use App\Models\User;
 use App\Services\SettingsService;
 use App\Services\WorkflowService;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Mockery;
@@ -192,6 +193,7 @@ class WorkflowServiceTest extends TestCase
         $approver->id = 5;
 
         $requisition = Mockery::mock(Requisition::class)->makePartial();
+        $requisition->setRelation('ccContacts', new Collection);
         $requisition->id = 100;
         $requisition->current_step = RequisitionStep::APPROVER_1;
         $requisition->status = RequisitionStatus::PENDING;
@@ -215,7 +217,7 @@ class WorkflowServiceTest extends TestCase
 
         $requisition->shouldReceive('load')
             ->once()
-            ->with(['submittedBy', 'items', 'attachments.uploadedBy', 'approvals.actedBy'])
+            ->with(['submittedBy', 'items', 'attachments.uploadedBy', 'ccContacts', 'approvals.actedBy'])
             ->andReturnSelf();
 
         $this->settingsService
@@ -238,6 +240,7 @@ class WorkflowServiceTest extends TestCase
         $approver->id = 6;
 
         $requisition = Mockery::mock(Requisition::class)->makePartial();
+        $requisition->setRelation('ccContacts', new Collection);
         $requisition->id = 101;
         $requisition->current_step = RequisitionStep::HR_ADMIN;
         $requisition->status = RequisitionStatus::PENDING;
@@ -264,7 +267,7 @@ class WorkflowServiceTest extends TestCase
 
         $requisition->shouldReceive('load')
             ->once()
-            ->with(['submittedBy', 'items', 'attachments.uploadedBy', 'approvals.actedBy'])
+            ->with(['submittedBy', 'items', 'attachments.uploadedBy', 'ccContacts', 'approvals.actedBy'])
             ->andReturnSelf();
 
         $result = $this->workflowService->approve($requisition, $approver);
@@ -282,6 +285,7 @@ class WorkflowServiceTest extends TestCase
         $approver->id = 7;
 
         $requisition = Mockery::mock(Requisition::class)->makePartial();
+        $requisition->setRelation('ccContacts', new Collection);
         $requisition->id = 102;
         $requisition->current_step = RequisitionStep::BUSINESS_CONTROLLER;
         $requisition->status = RequisitionStatus::PENDING;
@@ -308,7 +312,7 @@ class WorkflowServiceTest extends TestCase
 
         $requisition->shouldReceive('load')
             ->once()
-            ->with(['submittedBy', 'items', 'attachments.uploadedBy', 'approvals.actedBy'])
+            ->with(['submittedBy', 'items', 'attachments.uploadedBy', 'ccContacts', 'approvals.actedBy'])
             ->andReturnSelf();
 
         $result = $this->workflowService->deny($requisition, $approver, 'Budget exceeded');
