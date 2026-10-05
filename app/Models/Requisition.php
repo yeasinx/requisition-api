@@ -26,6 +26,11 @@ class Requisition extends Model
         return $this->hasMany(RequisitionItem::class);
     }
 
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(RequisitionAttachment::class);
+    }
+
     public function approvals(): HasMany
     {
         return $this->hasMany(ApprovalStep::class);
