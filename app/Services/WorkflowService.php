@@ -90,7 +90,7 @@ class WorkflowService
                 ]);
             }
 
-            return $requisition->load(['submittedBy', 'items', 'approvals.actedBy']);
+            return $requisition->load(['submittedBy', 'items', 'attachments.uploadedBy', 'approvals.actedBy']);
         });
 
         if ($submitter?->email) {
@@ -141,7 +141,7 @@ class WorkflowService
                 'current_step' => null,
             ]);
 
-            return $requisition->load(['submittedBy', 'items', 'approvals.actedBy']);
+            return $requisition->load(['submittedBy', 'items', 'attachments.uploadedBy', 'approvals.actedBy']);
         });
 
         if ($submitter?->email) {

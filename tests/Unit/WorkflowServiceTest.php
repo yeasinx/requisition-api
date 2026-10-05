@@ -215,7 +215,7 @@ class WorkflowServiceTest extends TestCase
 
         $requisition->shouldReceive('load')
             ->once()
-            ->with(['submittedBy', 'items', 'approvals.actedBy'])
+            ->with(['submittedBy', 'items', 'attachments.uploadedBy', 'approvals.actedBy'])
             ->andReturnSelf();
 
         $this->settingsService
@@ -264,7 +264,7 @@ class WorkflowServiceTest extends TestCase
 
         $requisition->shouldReceive('load')
             ->once()
-            ->with(['submittedBy', 'items', 'approvals.actedBy'])
+            ->with(['submittedBy', 'items', 'attachments.uploadedBy', 'approvals.actedBy'])
             ->andReturnSelf();
 
         $result = $this->workflowService->approve($requisition, $approver);
@@ -308,7 +308,7 @@ class WorkflowServiceTest extends TestCase
 
         $requisition->shouldReceive('load')
             ->once()
-            ->with(['submittedBy', 'items', 'approvals.actedBy'])
+            ->with(['submittedBy', 'items', 'attachments.uploadedBy', 'approvals.actedBy'])
             ->andReturnSelf();
 
         $result = $this->workflowService->deny($requisition, $approver, 'Budget exceeded');
