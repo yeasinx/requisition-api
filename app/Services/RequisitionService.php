@@ -5,9 +5,15 @@ namespace App\Services;
 use App\Enums\RequisitionStatus;
 use App\Mail\RequisitionPendingApprovalMail;
 use App\Models\Requisition;
+use App\Models\RequisitionAttachment;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Mail;
+use RuntimeException;
+use Throwable;
 
 class RequisitionService
 {
@@ -45,7 +51,7 @@ class RequisitionService
         $initialStep = $this->workflowService->getInitialStep($user);
         $initialApprover = $this->settingsService->getApproverForStep($initialStep);
 
-        $requisition = DB::transaction(function () use ($user, $items, $totalPrice, $initialStep) {
+        $requisition = DB::transaction(function () use ($user, $items, $totalPrice, $initialStep, $data) {
             $requisition = Requisition::create([
                 'requisition_number' => $this->requisitionNumberService->generate(),
                 'submitted_by_user_id' => $user->id,
@@ -56,7 +62,9 @@ class RequisitionService
 
             $requisition->items()->createMany($items);
 
-            return $requisition->load(['submittedBy', 'items']);
+            $this->addAttachments($requisition, $user, $data['attachments'] ?? []);
+
+            return $requisition->load(['submittedBy', 'items', 'attachments.uploadedBy']);
         });
 
         if ($initialApprover?->email) {
@@ -83,7 +91,49 @@ class RequisitionService
                 'total_expected_price' => $totalPrice,
             ]);
 
-            return $requisition->load(['submittedBy', 'items']);
+            return $requisition->load(['submittedBy', 'items', 'attachments.uploadedBy']);
         });
+    }
+
+    /**
+     * Store uploaded files on the private disk and record them against the requisition.
+     * Stored files are removed again if any step fails, so no orphans are left behind.
+     *
+     * @param  array<int, UploadedFile>  $files
+     * @return Collection<int, RequisitionAttachment>
+     */
+    public function addAttachments(Requisition $requisition, User $user, array $files): Collection
+    {
+        $storedPaths = [];
+
+        try {
+            return DB::transaction(function () use ($requisition, $user, $files, &$storedPaths) {
+                $attachments = new Collection;
+
+                foreach ($files as $file) {
+                    $path = $file->store("requisitions/{$requisition->id}", RequisitionAttachment::DISK);
+
+                    if ($path === false) {
+                        throw new RuntimeException('Failed to store attachment.');
+                    }
+
+                    $storedPaths[] = $path;
+
+                    $attachments->push($requisition->attachments()->create([
+                        'uploaded_by_user_id' => $user->id,
+                        'original_name' => $file->getClientOriginalName(),
+                        'path' => $path,
+                        'mime_type' => $file->getMimeType() ?? 'application/octet-stream',
+                        'size' => $file->getSize(),
+                    ]));
+                }
+
+                return $attachments->load('uploadedBy');
+            });
+        } catch (Throwable $e) {
+            Storage::disk(RequisitionAttachment::DISK)->delete($storedPaths);
+
+            throw $e;
+        }
     }
 }
