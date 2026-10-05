@@ -1,0 +1,28 @@
+info:
+  name: upload attachments
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: "{{baseUrl}}/requisitions/1/attachments"
+  headers:
+    - name: Authorization
+      value: "{{token}}"
+    - name: Accept
+      value: application/json
+  body:
+    type: multipart-form
+    data:
+      - name: attachments[]
+        type: file
+        value:
+          - ./quote.pdf
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
