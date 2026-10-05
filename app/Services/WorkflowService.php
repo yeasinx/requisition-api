@@ -7,6 +7,7 @@ use App\Enums\RequisitionStatus;
 use App\Enums\RequisitionStep;
 use App\Enums\UserType;
 use App\Mail\RequisitionApprovedMail;
+use App\Mail\RequisitionCcMail;
 use App\Mail\RequisitionDeniedMail;
 use App\Mail\RequisitionPendingApprovalMail;
 use App\Models\ApprovalStep;
@@ -90,7 +91,7 @@ class WorkflowService
                 ]);
             }
 
-            return $requisition->load(['submittedBy', 'items', 'attachments.uploadedBy', 'approvals.actedBy']);
+            return $requisition->load(['submittedBy', 'items', 'attachments.uploadedBy', 'ccContacts', 'approvals.actedBy']);
         });
 
         if ($submitter?->email) {
@@ -102,6 +103,10 @@ class WorkflowService
                     isFullyApproved: $nextStep === null
                 )
             );
+        }
+
+        if ($nextStep === null) {
+            $this->notifyCcContacts($requisition, RequisitionCcMail::APPROVED, $user, $remarks);
         }
 
         if ($nextStep !== null) {
@@ -141,7 +146,7 @@ class WorkflowService
                 'current_step' => null,
             ]);
 
-            return $requisition->load(['submittedBy', 'items', 'attachments.uploadedBy', 'approvals.actedBy']);
+            return $requisition->load(['submittedBy', 'items', 'attachments.uploadedBy', 'ccContacts', 'approvals.actedBy']);
         });
 
         if ($submitter?->email) {
@@ -150,6 +155,21 @@ class WorkflowService
             );
         }
 
+        $this->notifyCcContacts($requisition, RequisitionCcMail::DENIED, $user, $remarks);
+
         return $requisition;
+    }
+
+    /**
+     * Queue an FYI email to every contact CC'd on the requisition.
+     * Sent on submission and on the final outcome (fully approved or denied).
+     */
+    public function notifyCcContacts(Requisition $requisition, string $event, ?User $actor = null, ?string $remarks = null): void
+    {
+        foreach ($requisition->ccContacts as $contact) {
+            Mail::to($contact->email, $contact->name)->queue(
+                new RequisitionCcMail($requisition, $contact, $event, $actor, $remarks)
+            );
+        }
     }
 }
