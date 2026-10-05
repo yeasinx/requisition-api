@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ApprovalStepController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CcContactController;
 use App\Http\Controllers\RequisitionAttachmentController;
 use App\Http\Controllers\RequisitionController;
 use App\Http\Controllers\SystemSettingsController;
@@ -20,6 +21,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // User Management (Admin / HR)
     Route::apiResource('users', UserController::class);
+
+    // CC Contacts directory (SUPER_ADMIN manages; everyone can list to pick)
+    Route::apiResource('cc-contacts', CcContactController::class);
 
     // Requisitions Management
     Route::apiResource('requisitions', RequisitionController::class);
