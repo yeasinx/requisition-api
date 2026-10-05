@@ -359,7 +359,8 @@ curl -X POST "$BASE_URL/api/requisitions" \
   -F "attachments[]=@quote.pdf" \
   -F "attachments[]=@budget.xlsx"
 ```
-- **Response `201 Created`**: Returns the created requisition with calculated totals, initial step and `attachments`.
+- **CC (optional)**: `cc_contact_ids` is an array of up to 10 contact ids from `GET /api/cc-contacts`, for example `"cc_contact_ids": [3, 7]` in JSON or `cc_contact_ids[]=3` in multipart. Each contact receives an FYI email on submission and another on the final outcome (fully approved or denied). Unknown or deleted ids return `422`.
+- **Response `201 Created`**: Returns the created requisition with calculated totals, initial step, `attachments` and `cc_contacts`.
 
 ---
 
@@ -445,6 +446,41 @@ Delete an attachment and its stored file.
   "message": "Attachment deleted successfully"
 }
 ```
+
+---
+
+## 4b. CC Contacts
+
+A directory of people who can be CC'd on requisition emails. They do not need to be system users. Any authenticated user can list contacts, for example to fill a CC picker. Only `SUPER_ADMIN` can create, update or delete them.
+
+### `GET /api/cc-contacts`
+List all active contacts ordered by name (not paginated).
+```json
+{
+  "data": [
+    { "id": 3, "name": "Head of Ops", "designation": "Director", "email": "ops@example.com" }
+  ]
+}
+```
+
+### `POST /api/cc-contacts`
+- **Access**: `SUPER_ADMIN`
+- **Request Body**:
+```json
+{ "name": "Head of Ops", "designation": "Director", "email": "ops@example.com" }
+```
+`designation` is optional. `email` must be unique among active contacts.
+- **Response `201 Created`**: The contact.
+
+### `GET /api/cc-contacts/{id}`
+Returns a single contact.
+
+### `PUT /api/cc-contacts/{id}`
+- **Access**: `SUPER_ADMIN`. Any of `name`, `designation` or `email` can be sent.
+
+### `DELETE /api/cc-contacts/{id}`
+- **Access**: `SUPER_ADMIN`. Soft-deletes the contact. It can no longer be selected, but it still appears on past requisitions.
+- **Response `200 OK`**: `{"message": "Contact deleted successfully"}`
 
 ---
 
@@ -539,5 +575,11 @@ Deny and immediately terminate the requisition workflow. A reason is **required*
 3. **Denied** — Sent to the original submitter when any approver denies. Includes:
    - The denier's name
    - The mandatory reason for denial
+
+4. **CC (FYI)**: sent to every contact in the requisition's `cc_contacts`:
+   - on submission
+   - on the final outcome: fully approved, or denied (with the denier and the reason)
+
+   No email is sent to CC contacts for intermediate approval steps.
 
 Note: All emails are queued (`Mail::queue`) for async processing.

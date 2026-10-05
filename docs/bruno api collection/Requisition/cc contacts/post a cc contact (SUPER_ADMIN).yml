@@ -1,0 +1,27 @@
+info:
+  name: post a cc contact (SUPER_ADMIN)
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}/cc-contacts"
+  headers:
+    - name: Authorization
+      value: "{{token}}"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Head of Ops",
+        "designation": "Director",
+        "email": "ops@example.com"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

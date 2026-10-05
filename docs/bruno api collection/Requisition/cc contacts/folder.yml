@@ -1,0 +1,7 @@
+info:
+  name: cc contacts
+  type: folder
+  seq: 7
+
+request:
+  auth: inherit

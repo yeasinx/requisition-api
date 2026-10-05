@@ -26,7 +26,8 @@ http:
             "quantity": 1,
             "unit_price": 250.00
           }
-        ]
+        ],
+        "cc_contact_ids": [1]
       }
   auth: inherit
 
