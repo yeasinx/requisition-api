@@ -348,7 +348,18 @@ Create a new requisition with one or more line items.
   ]
 }
 ```
-- **Response `201 Created`**: Returns created requisition with calculated totals and initial step.
+- **Attachments (optional)**: `attachments` is optional on create. It may be omitted, `null` or empty. To attach files on create, send the request as `multipart/form-data` instead of JSON. Use form fields `items[0][item_name]`, `items[0][description]`, `items[0][quantity]`, `items[0][unit_price]`, … plus `attachments[]` for each file. Allowed types are `pdf`, `doc`, `docx`, `xls`, `xlsx`. Each file may be at most 10 MB, and a requisition can have at most 5 files.
+```bash
+curl -X POST "$BASE_URL/api/requisitions" \
+  -H "Authorization: Bearer $TOKEN" -H "Accept: application/json" \
+  -F "items[0][item_name]=MacBook Pro 16" \
+  -F "items[0][description]=M3 Max, 36GB RAM" \
+  -F "items[0][quantity]=1" \
+  -F "items[0][unit_price]=3499" \
+  -F "attachments[]=@quote.pdf" \
+  -F "attachments[]=@budget.xlsx"
+```
+- **Response `201 Created`**: Returns the created requisition with calculated totals, initial step and `attachments`.
 
 ---
 
@@ -356,7 +367,19 @@ Create a new requisition with one or more line items.
 Retrieve detailed view of a single requisition including items and full approval audit logs.
 
 - **Access**: Authorized (Submitter, Current Approver, any user who previously approved/denied it, or Super Admin). Soft-deleted requisitions return `404`.
-- **Response `200 OK`**: Returns full requisition resource with `items` and `approvals` arrays.
+- **Response `200 OK`**: Returns the full requisition resource with `items`, `attachments` and `approvals` arrays. Each attachment looks like this:
+```json
+{
+  "id": 1,
+  "requisition_id": 12,
+  "original_name": "quote.pdf",
+  "mime_type": "application/pdf",
+  "size": 102400,
+  "uploaded_by": { "id": 5, "name": "Jane Doe" },
+  "download_url": "http://127.0.0.1:8000/api/requisitions/12/attachments/1",
+  "created_at": "2026-10-05T10:00:00+00:00"
+}
+```
 
 ---
 
@@ -389,6 +412,37 @@ Soft-delete a pending requisition.
 ```json
 {
   "message": "Requisition deleted successfully"
+}
+```
+
+---
+
+## 4a. Requisition Attachments
+
+Files are stored privately and are served only through the authorized download endpoint. Allowed types are `pdf`, `doc`, `docx`, `xls`, `xlsx`. Each file may be at most 10 MB, and a requisition can have at most 5 attachments in total.
+
+### `POST /api/requisitions/{id}/attachments`
+Upload one or more files to an existing requisition.
+
+- **Access**: Submitter only, and only before any approval has occurred (same rule as `PUT`).
+- **Request**: `multipart/form-data` with one or more `attachments[]` files.
+- **Response `201 Created`**: `{"data": [ ...attachment objects ]}` for the newly uploaded files.
+- **Response `422`**: The type or size is invalid, or the upload would exceed 5 attachments on the requisition.
+
+### `GET /api/requisitions/{id}/attachments/{attachmentId}`
+Download the file under its original name.
+
+- **Access**: Same as viewing the requisition (submitter, current approver, past approvers, Super Admin).
+- **Response `200 OK`**: Binary file (`Content-Disposition: attachment`). Returns `404` if the attachment does not belong to the requisition.
+
+### `DELETE /api/requisitions/{id}/attachments/{attachmentId}`
+Delete an attachment and its stored file.
+
+- **Access**: Submitter only, and only before any approval has occurred.
+- **Response `200 OK`**:
+```json
+{
+  "message": "Attachment deleted successfully"
 }
 ```
 
