@@ -1,0 +1,46 @@
+name: requisition-local
+
+x-app: &app
+  build: .
+  image: requisition-api:local
+  env_file: .env.docker
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+services:
+  # API at http://localhost:8080
+  api:
+    <<: *app
+    ports:
+      - "8080:8080"
+
+  # Sends queued mail and runs other queued jobs
+  worker:
+    <<: *app
+    command: php artisan queue:work --tries=3
+    healthcheck:
+      disable: true
+
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: requisition
+      POSTGRES_USER: requisition
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U requisition -d requisition" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Catches every outgoing email; inbox at http://localhost:8025
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "8025:8025"
+
+volumes:
+  pg_data:
