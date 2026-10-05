@@ -30,7 +30,7 @@ class RequisitionController extends Controller
         Gate::authorize('viewAny', Requisition::class);
 
         $user = $request->user();
-        $query = Requisition::with(['submittedBy', 'items', 'approvals.actedBy']);
+        $query = Requisition::with(['submittedBy', 'items', 'attachments.uploadedBy', 'approvals.actedBy']);
         $assignedSteps = [];
 
         // Super Admin sees everything, and can list deleted ones with ?trashed=only
@@ -123,7 +123,7 @@ class RequisitionController extends Controller
     {
         Gate::authorize('view', $requisition);
 
-        $requisition->load(['submittedBy', 'items', 'approvals.actedBy']);
+        $requisition->load(['submittedBy', 'items', 'attachments.uploadedBy', 'approvals.actedBy']);
 
         return new RequisitionResource($requisition)->response();
     }

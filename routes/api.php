@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ApprovalStepController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RequisitionAttachmentController;
 use App\Http\Controllers\RequisitionController;
 use App\Http\Controllers\SystemSettingsController;
 use App\Http\Controllers\UserController;
@@ -22,6 +23,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Requisitions Management
     Route::apiResource('requisitions', RequisitionController::class);
+
+    // Requisition Attachments (attachment must belong to the requisition)
+    Route::scopeBindings()->group(function () {
+        Route::post('requisitions/{requisition}/attachments', [RequisitionAttachmentController::class, 'store']);
+        Route::get('requisitions/{requisition}/attachments/{attachment}', [RequisitionAttachmentController::class, 'download']);
+        Route::delete('requisitions/{requisition}/attachments/{attachment}', [RequisitionAttachmentController::class, 'destroy']);
+    });
 
     // Approval / Denial Actions
     Route::post('requisitions/{requisition}/approve', [ApprovalStepController::class, 'approve']);
