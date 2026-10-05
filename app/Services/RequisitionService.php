@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\RequisitionStatus;
+use App\Mail\RequisitionCcMail;
 use App\Mail\RequisitionPendingApprovalMail;
 use App\Models\Requisition;
 use App\Models\RequisitionAttachment;
@@ -62,9 +63,11 @@ class RequisitionService
 
             $requisition->items()->createMany($items);
 
+            $requisition->ccContacts()->sync($data['cc_contact_ids'] ?? []);
+
             $this->addAttachments($requisition, $user, $data['attachments'] ?? []);
 
-            return $requisition->load(['submittedBy', 'items', 'attachments.uploadedBy']);
+            return $requisition->load(['submittedBy', 'items', 'attachments.uploadedBy', 'ccContacts']);
         });
 
         if ($initialApprover?->email) {
@@ -72,6 +75,8 @@ class RequisitionService
                 new RequisitionPendingApprovalMail($requisition, $initialApprover)
             );
         }
+
+        $this->workflowService->notifyCcContacts($requisition, RequisitionCcMail::SUBMITTED);
 
         return $requisition;
     }
@@ -91,7 +96,7 @@ class RequisitionService
                 'total_expected_price' => $totalPrice,
             ]);
 
-            return $requisition->load(['submittedBy', 'items', 'attachments.uploadedBy']);
+            return $requisition->load(['submittedBy', 'items', 'attachments.uploadedBy', 'ccContacts']);
         });
     }
 

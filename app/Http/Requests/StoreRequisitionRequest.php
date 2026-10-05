@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\RequisitionAttachment;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreRequisitionRequest extends FormRequest
 {
@@ -27,6 +28,10 @@ class StoreRequisitionRequest extends FormRequest
             // Optional supporting documents (multipart only)
             'attachments' => ['nullable', 'array', 'max:'.RequisitionAttachment::MAX_PER_REQUISITION],
             'attachments.*' => StoreRequisitionAttachmentRequest::fileRules(),
+
+            // Optional people to CC on submission and final-outcome emails
+            'cc_contact_ids' => ['nullable', 'array', 'max:10'],
+            'cc_contact_ids.*' => ['integer', 'distinct', Rule::exists('cc_contacts', 'id')->whereNull('deleted_at')],
         ];
     }
 
@@ -42,6 +47,7 @@ class StoreRequisitionRequest extends FormRequest
             'items.*.unit_price.required' => 'Unit price is required for each item.',
             'items.*.unit_price.min' => 'Unit price must be 0 or greater.',
             ...StoreRequisitionAttachmentRequest::fileMessages(),
+            'cc_contact_ids.*.exists' => 'The selected CC contact does not exist.',
         ];
     }
 }
