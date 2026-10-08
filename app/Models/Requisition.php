@@ -19,7 +19,8 @@ class Requisition extends Model
 
     public function submittedBy(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'submitted_by_user_id');
+        // Deleted submitters still own their requisitions.
+        return $this->belongsTo(User::class, 'submitted_by_user_id')->withTrashed();
     }
 
     public function items(): HasMany

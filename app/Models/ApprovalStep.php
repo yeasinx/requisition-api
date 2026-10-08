@@ -18,7 +18,8 @@ class ApprovalStep extends Model
 
     public function actedBy(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'acted_by_user_id');
+        // Keep the audit trail readable after the approver's account is deleted.
+        return $this->belongsTo(User::class, 'acted_by_user_id')->withTrashed();
     }
 
     public function casts(): array
