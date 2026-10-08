@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\RequisitionStatus;
-use App\Enums\RequisitionStep;
 use App\Enums\UserType;
 use App\Http\Requests\StoreRequisitionRequest;
 use App\Http\Requests\UpdateRequisitionRequest;
@@ -39,23 +38,7 @@ class RequisitionController extends Controller
                 $query->onlyTrashed();
             }
         } else {
-            $settings = $this->settingsService->getSettings();
-
-            if ($user->id === $settings->first_approver_user_id) {
-                $assignedSteps[] = RequisitionStep::APPROVER_1;
-            }
-            if ($user->id === $settings->second_approver_user_id) {
-                $assignedSteps[] = RequisitionStep::APPROVER_2;
-            }
-            if ($user->id === $settings->business_controller_user_id) {
-                $assignedSteps[] = RequisitionStep::BUSINESS_CONTROLLER;
-            }
-            if ($user->id === $settings->accounts_approver_user_id) {
-                $assignedSteps[] = RequisitionStep::ACCOUNTS;
-            }
-            if ($user->id === $settings->hr_admin_approver_user_id) {
-                $assignedSteps[] = RequisitionStep::HR_ADMIN;
-            }
+            $assignedSteps = $this->settingsService->getStepsForUser($user);
 
             $query->where(function ($q) use ($user, $assignedSteps) {
                 // 1. Always see your own requisitions
