@@ -12,7 +12,9 @@ use App\Models\Requisition;
 use App\Models\SystemSettings;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Mail;
+use Symfony\Component\Mailer\Exception\TransportException;
 use Tests\TestCase;
 
 class RequisitionWorkflowNotificationTest extends TestCase
@@ -202,5 +204,65 @@ class RequisitionWorkflowNotificationTest extends TestCase
 
         // No more pending approval emails should be queued
         Mail::assertNotQueued(RequisitionPendingApprovalMail::class);
+    }
+
+    /**
+     * Flow 6: An unreachable mail server must not fail a submission that was already saved.
+     */
+    public function test_submitting_succeeds_when_mail_server_is_unreachable(): void
+    {
+        $this->useUnreachableSmtp();
+
+        $response = $this->actingAs($this->employee)
+            ->postJson('/api/requisitions', [
+                'items' => [
+                    ['item_name' => 'Monitor', 'description' => '27 inch', 'quantity' => 1, 'unit_price' => 300],
+                ],
+            ]);
+
+        $response->assertCreated();
+        $this->assertDatabaseHas('requisitions', ['id' => $response->json('data.id')]);
+        Exceptions::assertReported(TransportException::class);
+    }
+
+    /**
+     * Flow 7: An unreachable mail server must not fail an approval that was already recorded.
+     */
+    public function test_approving_succeeds_when_mail_server_is_unreachable(): void
+    {
+        $this->useUnreachableSmtp();
+
+        $requisition = Requisition::create([
+            'requisition_number' => 'REQ-2026-0005',
+            'submitted_by_user_id' => $this->employee->id,
+            'current_step' => RequisitionStep::APPROVER_1,
+            'status' => RequisitionStatus::PENDING,
+            'total_expected_price' => 500.00,
+        ]);
+
+        $this->actingAs($this->approver1)
+            ->postJson("/api/requisitions/{$requisition->id}/approve")
+            ->assertOk();
+
+        $this->assertDatabaseHas('requisitions', [
+            'id' => $requisition->id,
+            'current_step' => RequisitionStep::APPROVER_2,
+        ]);
+        Exceptions::assertReported(TransportException::class);
+    }
+
+    /**
+     * Send real mail through the sync queue to a port nothing listens on.
+     */
+    protected function useUnreachableSmtp(): void
+    {
+        Mail::swap(Mail::getFacadeRoot()->manager);
+        Exceptions::fake();
+
+        config([
+            'mail.default' => 'smtp',
+            'mail.mailers.smtp.host' => '127.0.0.1',
+            'mail.mailers.smtp.port' => 1,
+        ]);
     }
 }
