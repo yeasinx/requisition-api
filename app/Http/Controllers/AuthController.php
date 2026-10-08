@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\CurrentUserResource;
 use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -28,7 +28,7 @@ class AuthController extends Controller
             'message' => 'Login successful',
             'access_token' => $result['token'],
             'token_type' => 'Bearer',
-            'user' => new UserResource($result['user']),
+            'user' => new CurrentUserResource($result['user']),
         ]);
     }
 
@@ -49,6 +49,6 @@ class AuthController extends Controller
      */
     public function me(Request $request): JsonResponse
     {
-        return (new UserResource($request->user()))->response();
+        return (new CurrentUserResource($request->user()))->response();
     }
 }
