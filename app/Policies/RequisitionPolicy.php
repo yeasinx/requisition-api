@@ -3,7 +3,6 @@
 namespace App\Policies;
 
 use App\Enums\RequisitionStatus;
-use App\Enums\RequisitionStep;
 use App\Enums\UserType;
 use App\Models\Requisition;
 use App\Models\User;
@@ -39,16 +38,7 @@ class RequisitionPolicy
             return true;
         }
 
-        $settings = $this->settingsService->getSettings();
-
-        return match ($requisition->current_step) {
-            RequisitionStep::APPROVER_1 => $user->id === $settings->first_approver_user_id,
-            RequisitionStep::APPROVER_2 => $user->id === $settings->second_approver_user_id,
-            RequisitionStep::BUSINESS_CONTROLLER => $user->id === $settings->business_controller_user_id,
-            RequisitionStep::ACCOUNTS => $user->id === $settings->accounts_approver_user_id,
-            RequisitionStep::HR_ADMIN => $user->id === $settings->hr_admin_approver_user_id,
-            default => false,
-        };
+        return $this->isAssignedToCurrentStep($user, $requisition);
     }
 
     /**
@@ -96,17 +86,8 @@ class RequisitionPolicy
             return false;
         }
 
-        $settings = $this->settingsService->getSettings();
-
         // Check if user is the designated approver for the current step
-        return match ($requisition->current_step) {
-            RequisitionStep::APPROVER_1 => $user->id === $settings->first_approver_user_id,
-            RequisitionStep::APPROVER_2 => $user->id === $settings->second_approver_user_id,
-            RequisitionStep::BUSINESS_CONTROLLER => $user->id === $settings->business_controller_user_id,
-            RequisitionStep::ACCOUNTS => $user->id === $settings->accounts_approver_user_id,
-            RequisitionStep::HR_ADMIN => $user->id === $settings->hr_admin_approver_user_id,
-            default => false,
-        };
+        return $this->isAssignedToCurrentStep($user, $requisition);
     }
 
     /**
@@ -116,5 +97,14 @@ class RequisitionPolicy
     public function deny(User $user, Requisition $requisition): bool
     {
         return $this->approve($user, $requisition);
+    }
+
+    /**
+     * Whether the requisition is waiting at a step the user is assigned to approve.
+     */
+    private function isAssignedToCurrentStep(User $user, Requisition $requisition): bool
+    {
+        return $requisition->current_step !== null
+            && in_array($requisition->current_step, $this->settingsService->getStepsForUser($user), true);
     }
 }

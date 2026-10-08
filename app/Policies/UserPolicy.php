@@ -36,6 +36,11 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
+        // Only a Super Admin may change a Super Admin account (e.g. its password).
+        if ($model->role === UserType::SUPER_ADMIN && $user->role !== UserType::SUPER_ADMIN) {
+            return false;
+        }
+
         return in_array($user->role, [UserType::SUPER_ADMIN, UserType::HR_ADMIN], true);
     }
 

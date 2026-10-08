@@ -77,4 +77,31 @@ class SettingsService
             RequisitionStep::HR_ADMIN => $this->getHrAdminApprover(),
         };
     }
+
+    /**
+     * Workflow steps the user is assigned to approve, in workflow order.
+     *
+     * @return list<RequisitionStep>
+     */
+    public function getStepsForUser(User $user): array
+    {
+        $settings = $this->getSettings();
+
+        $assignees = [
+            [RequisitionStep::APPROVER_1, $settings->first_approver_user_id],
+            [RequisitionStep::APPROVER_2, $settings->second_approver_user_id],
+            [RequisitionStep::BUSINESS_CONTROLLER, $settings->business_controller_user_id],
+            [RequisitionStep::ACCOUNTS, $settings->accounts_approver_user_id],
+            [RequisitionStep::HR_ADMIN, $settings->hr_admin_approver_user_id],
+        ];
+
+        $steps = [];
+        foreach ($assignees as [$step, $assigneeId]) {
+            if ($assigneeId !== null && (int) $assigneeId === $user->id) {
+                $steps[] = $step;
+            }
+        }
+
+        return $steps;
+    }
 }

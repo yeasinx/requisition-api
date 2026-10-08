@@ -40,7 +40,8 @@ class RequisitionAttachment extends Model
 
     public function uploadedBy(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'uploaded_by_user_id');
+        // Deleted uploaders still own their attachments.
+        return $this->belongsTo(User::class, 'uploaded_by_user_id')->withTrashed();
     }
 
     protected function casts(): array
