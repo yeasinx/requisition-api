@@ -13,9 +13,11 @@ use App\Mail\RequisitionPendingApprovalMail;
 use App\Models\ApprovalStep;
 use App\Models\Requisition;
 use App\Models\User;
+use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use InvalidArgumentException;
+use Throwable;
 
 class WorkflowService
 {
@@ -95,14 +97,12 @@ class WorkflowService
         });
 
         if ($submitter?->email) {
-            Mail::to($submitter->email)->queue(
-                new RequisitionApprovedMail(
-                    $requisition,
-                    $user,
-                    $remarks,
-                    isFullyApproved: $nextStep === null
-                )
-            );
+            $this->queueMail($submitter->email, new RequisitionApprovedMail(
+                $requisition,
+                $user,
+                $remarks,
+                isFullyApproved: $nextStep === null
+            ));
         }
 
         if ($nextStep === null) {
@@ -112,9 +112,7 @@ class WorkflowService
         if ($nextStep !== null) {
             $nextApprover = $this->settingsService->getApproverForStep($nextStep);
             if ($nextApprover?->email) {
-                Mail::to($nextApprover->email)->queue(
-                    new RequisitionPendingApprovalMail($requisition, $nextApprover)
-                );
+                $this->queueMail($nextApprover->email, new RequisitionPendingApprovalMail($requisition, $nextApprover));
             }
         }
 
@@ -150,9 +148,7 @@ class WorkflowService
         });
 
         if ($submitter?->email) {
-            Mail::to($submitter->email)->queue(
-                new RequisitionDeniedMail($requisition, $user, $remarks)
-            );
+            $this->queueMail($submitter->email, new RequisitionDeniedMail($requisition, $user, $remarks));
         }
 
         $this->notifyCcContacts($requisition, RequisitionCcMail::DENIED, $user, $remarks);
@@ -167,9 +163,25 @@ class WorkflowService
     public function notifyCcContacts(Requisition $requisition, string $event, ?User $actor = null, ?string $remarks = null): void
     {
         foreach ($requisition->ccContacts as $contact) {
-            Mail::to($contact->email, $contact->name)->queue(
-                new RequisitionCcMail($requisition, $contact, $event, $actor, $remarks)
+            $this->queueMail(
+                $contact->email,
+                new RequisitionCcMail($requisition, $contact, $event, $actor, $remarks),
+                $contact->name
             );
+        }
+    }
+
+    /**
+     * Queue a notification without letting a mail failure undo the committed action.
+     * With a sync queue the send runs inline, so an unreachable SMTP server would
+     * otherwise turn an already-saved requisition into a 500 response.
+     */
+    public function queueMail(string $email, Mailable $mail, ?string $name = null): void
+    {
+        try {
+            Mail::to($email, $name)->queue($mail);
+        } catch (Throwable $e) {
+            report($e);
         }
     }
 }

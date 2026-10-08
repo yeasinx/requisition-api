@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Mail;
 use RuntimeException;
 use Throwable;
 
@@ -71,7 +70,8 @@ class RequisitionService
         });
 
         if ($initialApprover?->email) {
-            Mail::to($initialApprover->email)->queue(
+            $this->workflowService->queueMail(
+                $initialApprover->email,
                 new RequisitionPendingApprovalMail($requisition, $initialApprover)
             );
         }
