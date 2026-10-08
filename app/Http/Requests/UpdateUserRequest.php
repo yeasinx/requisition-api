@@ -2,10 +2,8 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\UserType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\Rules\Password;
 
 class UpdateUserRequest extends FormRequest
@@ -25,7 +23,15 @@ class UpdateUserRequest extends FormRequest
             'password' => ['sometimes', 'nullable', 'string', Password::defaults()],
             'employee_id' => ['sometimes', 'required', 'string', 'max:50', Rule::unique('users', 'employee_id')->ignore($userId)],
             'designation' => ['sometimes', 'required', 'string', 'max:255'],
-            'role' => ['sometimes', 'required', new Enum(UserType::class)],
+            'role' => ['sometimes', 'required', ...StoreUserRequest::roleRules($this->user())],
         ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return StoreUserRequest::roleMessages();
     }
 }
